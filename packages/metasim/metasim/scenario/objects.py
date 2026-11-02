@@ -174,6 +174,9 @@ class BaseRigidObjCfg(BaseObjCfg):
     collision_enabled: bool = True
     """Whether to enable collision."""
 
+    newton_hide_collision_shapes: bool = False
+    """Hide Newton collision geometry while retaining physical collision, including collision-only URDFs."""
+
     physics: PhysicStateType | None = None
     """IsaacSim's convention for collision and gravity state. Default to None. If specified, it will be translated to :attr:`collision_enabled` and :attr:`fix_base_link`."""
 

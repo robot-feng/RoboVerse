@@ -213,6 +213,84 @@ def add_mjcf(builder, mjcf_path: str, **kwargs):
     return parse_mjcf(builder, mjcf_path, **kwargs)
 
 
+def restore_site_connect_anchors(model, solver, source_sites: Mapping[str, str]) -> int:
+    """Restore the second site of MJCF CONNECT equalities in Newton 1.7.
+
+    Newton's importer currently converts a site pair to a body equality using
+    only the first site's anchor. The second anchor is inferred at the zero
+    pose, which is incorrect when the authored sites are not coincident there.
+    ``source_sites`` maps scoped equality names to their second site names.
+    This uses only imported site transforms and the solver's equality map.
+
+    Return -1 when this Newton version does not expose the required mappings;
+    the caller can then report that source anchors could not be verified.
+    """
+    if not source_sites:
+        return 0
+    mjc = getattr(model, "mujoco", None)
+    required = (
+        "equality_constraint_label",
+        "equality_constraint_body2",
+        "equality_constraint_target",
+        "equality_constraint_target_kind",
+    )
+    if mjc is None or any(not hasattr(mjc, name) for name in required):
+        return -1
+    if getattr(solver, "mjc_eq_to_newton_eq", None) is None or not hasattr(solver, "mjw_model"):
+        return -1
+    if not hasattr(solver.mjw_model, "eq_data"):
+        return -1
+
+    import numpy as np
+
+    labels = mjc.equality_constraint_label
+    bodies = mjc.equality_constraint_body2.numpy()
+    targets = mjc.equality_constraint_target.numpy()
+    target_kinds = mjc.equality_constraint_target_kind.numpy()
+    shape_labels = model.shape_label
+    shape_bodies = model.shape_body.numpy()
+    shape_xforms = model.shape_transform.numpy()
+    loop_xforms = model.joint_X_c.numpy()
+    joint_children = model.joint_child.numpy()
+    mapping = solver.mjc_eq_to_newton_eq.numpy()
+    eq_data = solver.mjw_model.eq_data.numpy()
+    found: set[str] = set()
+    count = 0
+    for eq_idx, label in enumerate(labels):
+        site_name = source_sites.get(label)
+        if site_name is None:
+            continue
+        body = int(bodies[eq_idx])
+        candidates = [
+            i for i, shape_label in enumerate(shape_labels)
+            if int(shape_bodies[i]) == body and isinstance(shape_label, str)
+            and shape_label.rsplit("/", 1)[-1] == site_name
+        ]
+        if len(candidates) != 1:
+            raise ValueError(f"Newton could not uniquely resolve site {site_name!r} for {label!r}")
+        target = int(targets[eq_idx])
+        # Newton's converted CONNECT row uses target kind 1 (loop joint).
+        if int(target_kinds[eq_idx]) != 1 or target < 0 or target >= len(joint_children) or int(joint_children[target]) != body:
+            raise ValueError(f"Newton did not map site-based equality {label!r} to its expected loop joint")
+        destinations = np.argwhere(mapping == eq_idx)
+        if len(destinations) != 1:
+            raise ValueError(f"Newton did not uniquely map site-based equality {label!r} to the solver")
+        world, solver_eq = (int(value) for value in destinations[0])
+        anchor = shape_xforms[candidates[0], :3]
+        eq_data[world, solver_eq, 3:6] = anchor
+        loop_xforms[target, :3] = anchor
+        found.add(label)
+        count += 1
+    missing = set(source_sites) - found
+    if missing:
+        raise ValueError(f"Newton did not import site-based equalities: {sorted(missing)}")
+    model.joint_X_c.assign(loop_xforms)
+    solver.mjw_model.eq_data.assign(eq_data)
+    if getattr(solver, "use_mujoco_cpu", False):
+        solver.mj_model.eq_data[:] = eq_data[0]
+    return count
+
+
 def _install_modelbuilder_key_to_label_shim():
     """Newton 1.2 renamed ``key`` -> ``label`` in ``ModelBuilder.add_body``
     (and similar add_* methods). Wrap them so existing callers using

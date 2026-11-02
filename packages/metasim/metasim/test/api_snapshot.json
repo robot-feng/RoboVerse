@@ -240,6 +240,217 @@
     }
    }
   },
+  "FisheyeCameraCfg": {
+   "bases": [
+    "BaseCameraCfg"
+   ],
+   "fields": [
+    "name",
+    "data_types",
+    "width",
+    "height",
+    "pos",
+    "look_at",
+    "mount_to",
+    "mount_link",
+    "mount_pos",
+    "mount_quat",
+    "intrinsic",
+    "projection_model",
+    "clipping_range",
+    "calibration_size",
+    "optical_center",
+    "focal_length_px",
+    "coefficients",
+    "max_fov_rad",
+    "calibration_source",
+    "calibration_source_sha256",
+    "max_fov_source"
+   ],
+   "kind": "class",
+   "methods": {
+    "__init__": {
+     "params": [
+      {
+       "default": false,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "self"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "name"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "data_types"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "width"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "height"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "pos"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "look_at"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "mount_to"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "mount_link"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "mount_pos"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "mount_quat"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "intrinsic"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "projection_model"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "clipping_range"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "calibration_size"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "optical_center"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "focal_length_px"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "coefficients"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "max_fov_rad"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "calibration_source"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "calibration_source_sha256"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "max_fov_source"
+      }
+     ],
+     "signature": "(self, name: 'str' = <factory>, data_types: \"list[Literal['rgb', 'depth', 'instance_seg', 'instance_id_seg']]\" = <factory>, width: 'int' = <factory>, height: 'int' = <factory>, pos: 'tuple[float, float, float]' = <factory>, look_at: 'tuple[float, float, float]' = <factory>, mount_to: 'str | tuple[str, str] | None' = <factory>, mount_link: 'str | tuple[str, str] | None' = <factory>, mount_pos: 'tuple[float, float, float] | None' = <factory>, mount_quat: 'tuple[float, float, float, float] | None' = <factory>, intrinsic: 'list[list[float]] | None' = <factory>, projection_model: \"Literal['opencv_fisheye', 'ftheta']\" = <factory>, clipping_range: 'tuple[float, float]' = <factory>, calibration_size: 'tuple[int, int]' = <factory>, optical_center: 'tuple[float, float]' = <factory>, focal_length_px: 'tuple[float, float] | None' = <factory>, coefficients: 'tuple[float, ...]' = <factory>, max_fov_rad: 'float | None' = <factory>, calibration_source: 'str' = <factory>, calibration_source_sha256: 'str | None' = <factory>, max_fov_source: \"Literal['specified', 'inferred_monotonic']\" = <factory>) -> None"
+    },
+    "copy": {
+     "params": [
+      {
+       "default": false,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "obj"
+      }
+     ],
+     "signature": "(obj: 'object') -> 'object'"
+    },
+    "from_dict": {
+     "params": [
+      {
+       "default": false,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "obj"
+      },
+      {
+       "default": false,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "data"
+      }
+     ],
+     "signature": "(obj, data: 'dict[str, Any]') -> 'None'"
+    },
+    "replace": {
+     "params": [
+      {
+       "default": false,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "obj"
+      },
+      {
+       "default": false,
+       "kind": "VAR_KEYWORD",
+       "name": "kwargs"
+      }
+     ],
+     "signature": "(obj: 'object', **kwargs) -> 'object'"
+    },
+    "to_dict": {
+     "params": [
+      {
+       "default": false,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "obj"
+      }
+     ],
+     "signature": "(obj: 'object') -> 'dict[str, Any]'"
+    },
+    "validate": {
+     "params": [
+      {
+       "default": false,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "obj"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "prefix"
+      }
+     ],
+     "signature": "(obj: 'object', prefix: 'str' = '') -> 'list[str]'"
+    }
+   }
+  },
   "PinholeCameraCfg": {
    "bases": [
     "BaseCameraCfg"
@@ -2566,6 +2777,7 @@
     "enabled_gravity",
     "scale",
     "collision_enabled",
+    "newton_hide_collision_shapes",
     "physics",
     "mesh_density",
     "collision_mesh_path",
@@ -2622,6 +2834,11 @@
       {
        "default": true,
        "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "newton_hide_collision_shapes"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
        "name": "physics"
       },
       {
@@ -2660,7 +2877,7 @@
        "name": "angular_damping"
       }
      ],
-     "signature": "(self, name: 'str' = <factory>, default_position: 'tuple[float, float, float]' = <factory>, default_orientation: 'tuple[float, float, float, float]' = <factory>, fix_base_link: 'bool | None' = <factory>, enabled_gravity: 'bool' = <factory>, scale: 'float | tuple[float, float, float]' = <factory>, collision_enabled: 'bool' = <factory>, physics: 'PhysicStateType | None' = <factory>, mesh_density: 'float | None' = <factory>, collision_mesh_path: 'str | None' = <factory>, static_friction: 'float | None' = <factory>, dynamic_friction: 'float | None' = <factory>, restitution: 'float | None' = <factory>, linear_damping: 'float | None' = <factory>, angular_damping: 'float | None' = <factory>) -> None"
+     "signature": "(self, name: 'str' = <factory>, default_position: 'tuple[float, float, float]' = <factory>, default_orientation: 'tuple[float, float, float, float]' = <factory>, fix_base_link: 'bool | None' = <factory>, enabled_gravity: 'bool' = <factory>, scale: 'float | tuple[float, float, float]' = <factory>, collision_enabled: 'bool' = <factory>, newton_hide_collision_shapes: 'bool' = <factory>, physics: 'PhysicStateType | None' = <factory>, mesh_density: 'float | None' = <factory>, collision_mesh_path: 'str | None' = <factory>, static_friction: 'float | None' = <factory>, dynamic_friction: 'float | None' = <factory>, restitution: 'float | None' = <factory>, linear_damping: 'float | None' = <factory>, angular_damping: 'float | None' = <factory>) -> None"
     },
     "copy": {
      "params": [
@@ -2741,6 +2958,7 @@
     "enabled_gravity",
     "scale",
     "collision_enabled",
+    "newton_hide_collision_shapes",
     "physics",
     "mesh_density",
     "collision_mesh_path",
@@ -2802,6 +3020,11 @@
        "default": true,
        "kind": "POSITIONAL_OR_KEYWORD",
        "name": "collision_enabled"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "newton_hide_collision_shapes"
       },
       {
        "default": true,
@@ -2889,7 +3112,7 @@
        "name": "mesh_pose"
       }
      ],
-     "signature": "(self, name: 'str' = <factory>, default_position: 'tuple[float, float, float]' = <factory>, default_orientation: 'tuple[float, float, float, float]' = <factory>, fix_base_link: 'bool | None' = <factory>, enabled_gravity: 'bool' = <factory>, scale: 'float | tuple[float, float, float]' = <factory>, collision_enabled: 'bool' = <factory>, physics: 'PhysicStateType | None' = <factory>, mesh_density: 'float | None' = <factory>, collision_mesh_path: 'str | None' = <factory>, static_friction: 'float | None' = <factory>, dynamic_friction: 'float | None' = <factory>, restitution: 'float | None' = <factory>, linear_damping: 'float | None' = <factory>, angular_damping: 'float | None' = <factory>, mesh_path: 'str | None' = <factory>, usd_path: 'str | None' = <factory>, urdf_path: 'str | None' = <factory>, mjcf_path: 'str | None' = <factory>, mjx_mjcf_path: 'str | None' = <factory>, file_type: 'dict[str, str]' = <factory>, extra_resources: 'list[str]' = <factory>, collapse_fixed_joints: 'bool' = <factory>, mesh_pose: 'list[float]' = <factory>) -> None"
+     "signature": "(self, name: 'str' = <factory>, default_position: 'tuple[float, float, float]' = <factory>, default_orientation: 'tuple[float, float, float, float]' = <factory>, fix_base_link: 'bool | None' = <factory>, enabled_gravity: 'bool' = <factory>, scale: 'float | tuple[float, float, float]' = <factory>, collision_enabled: 'bool' = <factory>, newton_hide_collision_shapes: 'bool' = <factory>, physics: 'PhysicStateType | None' = <factory>, mesh_density: 'float | None' = <factory>, collision_mesh_path: 'str | None' = <factory>, static_friction: 'float | None' = <factory>, dynamic_friction: 'float | None' = <factory>, restitution: 'float | None' = <factory>, linear_damping: 'float | None' = <factory>, angular_damping: 'float | None' = <factory>, mesh_path: 'str | None' = <factory>, usd_path: 'str | None' = <factory>, urdf_path: 'str | None' = <factory>, mjcf_path: 'str | None' = <factory>, mjx_mjcf_path: 'str | None' = <factory>, file_type: 'dict[str, str]' = <factory>, extra_resources: 'list[str]' = <factory>, collapse_fixed_joints: 'bool' = <factory>, mesh_pose: 'list[float]' = <factory>) -> None"
     },
     "copy": {
      "params": [
@@ -2971,6 +3194,7 @@
     "enabled_gravity",
     "scale",
     "collision_enabled",
+    "newton_hide_collision_shapes",
     "physics",
     "mesh_density",
     "collision_mesh_path",
@@ -3030,6 +3254,11 @@
       {
        "default": true,
        "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "newton_hide_collision_shapes"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
        "name": "physics"
       },
       {
@@ -3083,7 +3312,7 @@
        "name": "size"
       }
      ],
-     "signature": "(self, name: 'str' = <factory>, default_position: 'tuple[float, float, float]' = <factory>, default_orientation: 'tuple[float, float, float, float]' = <factory>, fix_base_link: 'bool | None' = <factory>, enabled_gravity: 'bool' = <factory>, scale: 'float | tuple[float, float, float]' = <factory>, collision_enabled: 'bool' = <factory>, physics: 'PhysicStateType | None' = <factory>, mesh_density: 'float | None' = <factory>, collision_mesh_path: 'str | None' = <factory>, static_friction: 'float | None' = <factory>, dynamic_friction: 'float | None' = <factory>, restitution: 'float | None' = <factory>, linear_damping: 'float | None' = <factory>, angular_damping: 'float | None' = <factory>, mass: 'float' = <factory>, color: 'list[float]' = <factory>, size: 'list[float]' = <factory>) -> None"
+     "signature": "(self, name: 'str' = <factory>, default_position: 'tuple[float, float, float]' = <factory>, default_orientation: 'tuple[float, float, float, float]' = <factory>, fix_base_link: 'bool | None' = <factory>, enabled_gravity: 'bool' = <factory>, scale: 'float | tuple[float, float, float]' = <factory>, collision_enabled: 'bool' = <factory>, newton_hide_collision_shapes: 'bool' = <factory>, physics: 'PhysicStateType | None' = <factory>, mesh_density: 'float | None' = <factory>, collision_mesh_path: 'str | None' = <factory>, static_friction: 'float | None' = <factory>, dynamic_friction: 'float | None' = <factory>, restitution: 'float | None' = <factory>, linear_damping: 'float | None' = <factory>, angular_damping: 'float | None' = <factory>, mass: 'float' = <factory>, color: 'list[float]' = <factory>, size: 'list[float]' = <factory>) -> None"
     },
     "copy": {
      "params": [
@@ -3173,6 +3402,7 @@
     "enabled_gravity",
     "scale",
     "collision_enabled",
+    "newton_hide_collision_shapes",
     "physics",
     "mesh_density",
     "collision_mesh_path",
@@ -3229,6 +3459,11 @@
        "default": true,
        "kind": "POSITIONAL_OR_KEYWORD",
        "name": "collision_enabled"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "newton_hide_collision_shapes"
       },
       {
        "default": true,
@@ -3291,7 +3526,7 @@
        "name": "height"
       }
      ],
-     "signature": "(self, name: 'str' = <factory>, default_position: 'tuple[float, float, float]' = <factory>, default_orientation: 'tuple[float, float, float, float]' = <factory>, fix_base_link: 'bool | None' = <factory>, enabled_gravity: 'bool' = <factory>, scale: 'float | tuple[float, float, float]' = <factory>, collision_enabled: 'bool' = <factory>, physics: 'PhysicStateType | None' = <factory>, mesh_density: 'float | None' = <factory>, collision_mesh_path: 'str | None' = <factory>, static_friction: 'float | None' = <factory>, dynamic_friction: 'float | None' = <factory>, restitution: 'float | None' = <factory>, linear_damping: 'float | None' = <factory>, angular_damping: 'float | None' = <factory>, mass: 'float' = <factory>, color: 'list[float]' = <factory>, radius: 'float' = <factory>, height: 'float' = <factory>) -> None"
+     "signature": "(self, name: 'str' = <factory>, default_position: 'tuple[float, float, float]' = <factory>, default_orientation: 'tuple[float, float, float, float]' = <factory>, fix_base_link: 'bool | None' = <factory>, enabled_gravity: 'bool' = <factory>, scale: 'float | tuple[float, float, float]' = <factory>, collision_enabled: 'bool' = <factory>, newton_hide_collision_shapes: 'bool' = <factory>, physics: 'PhysicStateType | None' = <factory>, mesh_density: 'float | None' = <factory>, collision_mesh_path: 'str | None' = <factory>, static_friction: 'float | None' = <factory>, dynamic_friction: 'float | None' = <factory>, restitution: 'float | None' = <factory>, linear_damping: 'float | None' = <factory>, angular_damping: 'float | None' = <factory>, mass: 'float' = <factory>, color: 'list[float]' = <factory>, radius: 'float' = <factory>, height: 'float' = <factory>) -> None"
     },
     "copy": {
      "params": [
@@ -3376,6 +3611,7 @@
     "enabled_gravity",
     "scale",
     "collision_enabled",
+    "newton_hide_collision_shapes",
     "physics",
     "mesh_density",
     "collision_mesh_path",
@@ -3437,6 +3673,11 @@
        "default": true,
        "kind": "POSITIONAL_OR_KEYWORD",
        "name": "collision_enabled"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "newton_hide_collision_shapes"
       },
       {
        "default": true,
@@ -3524,7 +3765,7 @@
        "name": "base_link"
       }
      ],
-     "signature": "(self, name: 'str' = <factory>, default_position: 'tuple[float, float, float]' = <factory>, default_orientation: 'tuple[float, float, float, float]' = <factory>, fix_base_link: 'bool | None' = <factory>, enabled_gravity: 'bool' = <factory>, scale: 'float | tuple[float, float, float]' = <factory>, collision_enabled: 'bool' = <factory>, physics: 'PhysicStateType | None' = <factory>, mesh_density: 'float | None' = <factory>, collision_mesh_path: 'str | None' = <factory>, static_friction: 'float | None' = <factory>, dynamic_friction: 'float | None' = <factory>, restitution: 'float | None' = <factory>, linear_damping: 'float | None' = <factory>, angular_damping: 'float | None' = <factory>, mesh_path: 'str | None' = <factory>, usd_path: 'str | None' = <factory>, urdf_path: 'str | None' = <factory>, mjcf_path: 'str | None' = <factory>, mjx_mjcf_path: 'str | None' = <factory>, file_type: 'dict[str, str]' = <factory>, extra_resources: 'list[str]' = <factory>, collapse_fixed_joints: 'bool' = <factory>, base_link: 'str | tuple[str, str] | None' = <factory>) -> None"
+     "signature": "(self, name: 'str' = <factory>, default_position: 'tuple[float, float, float]' = <factory>, default_orientation: 'tuple[float, float, float, float]' = <factory>, fix_base_link: 'bool | None' = <factory>, enabled_gravity: 'bool' = <factory>, scale: 'float | tuple[float, float, float]' = <factory>, collision_enabled: 'bool' = <factory>, newton_hide_collision_shapes: 'bool' = <factory>, physics: 'PhysicStateType | None' = <factory>, mesh_density: 'float | None' = <factory>, collision_mesh_path: 'str | None' = <factory>, static_friction: 'float | None' = <factory>, dynamic_friction: 'float | None' = <factory>, restitution: 'float | None' = <factory>, linear_damping: 'float | None' = <factory>, angular_damping: 'float | None' = <factory>, mesh_path: 'str | None' = <factory>, usd_path: 'str | None' = <factory>, urdf_path: 'str | None' = <factory>, mjcf_path: 'str | None' = <factory>, mjx_mjcf_path: 'str | None' = <factory>, file_type: 'dict[str, str]' = <factory>, extra_resources: 'list[str]' = <factory>, collapse_fixed_joints: 'bool' = <factory>, base_link: 'str | tuple[str, str] | None' = <factory>) -> None"
     },
     "copy": {
      "params": [
@@ -3605,6 +3846,7 @@
     "enabled_gravity",
     "scale",
     "collision_enabled",
+    "newton_hide_collision_shapes",
     "physics",
     "mesh_density",
     "collision_mesh_path",
@@ -3664,6 +3906,11 @@
       {
        "default": true,
        "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "newton_hide_collision_shapes"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
        "name": "physics"
       },
       {
@@ -3717,7 +3964,7 @@
        "name": "color"
       }
      ],
-     "signature": "(self, name: 'str' = <factory>, default_position: 'tuple[float, float, float]' = <factory>, default_orientation: 'tuple[float, float, float, float]' = <factory>, fix_base_link: 'bool | None' = <factory>, enabled_gravity: 'bool' = <factory>, scale: 'float | tuple[float, float, float]' = <factory>, collision_enabled: 'bool' = <factory>, physics: 'PhysicStateType | None' = <factory>, mesh_density: 'float | None' = <factory>, collision_mesh_path: 'str | None' = <factory>, static_friction: 'float | None' = <factory>, dynamic_friction: 'float | None' = <factory>, restitution: 'float | None' = <factory>, linear_damping: 'float | None' = <factory>, angular_damping: 'float | None' = <factory>, boxes: 'list' = <factory>, mass: 'float' = <factory>, color: 'list[float]' = <factory>) -> None"
+     "signature": "(self, name: 'str' = <factory>, default_position: 'tuple[float, float, float]' = <factory>, default_orientation: 'tuple[float, float, float, float]' = <factory>, fix_base_link: 'bool | None' = <factory>, enabled_gravity: 'bool' = <factory>, scale: 'float | tuple[float, float, float]' = <factory>, collision_enabled: 'bool' = <factory>, newton_hide_collision_shapes: 'bool' = <factory>, physics: 'PhysicStateType | None' = <factory>, mesh_density: 'float | None' = <factory>, collision_mesh_path: 'str | None' = <factory>, static_friction: 'float | None' = <factory>, dynamic_friction: 'float | None' = <factory>, restitution: 'float | None' = <factory>, linear_damping: 'float | None' = <factory>, angular_damping: 'float | None' = <factory>, boxes: 'list' = <factory>, mass: 'float' = <factory>, color: 'list[float]' = <factory>) -> None"
     },
     "copy": {
      "params": [
@@ -3807,6 +4054,7 @@
     "enabled_gravity",
     "scale",
     "collision_enabled",
+    "newton_hide_collision_shapes",
     "physics",
     "mesh_density",
     "collision_mesh_path",
@@ -3866,6 +4114,11 @@
       {
        "default": true,
        "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "newton_hide_collision_shapes"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
        "name": "physics"
       },
       {
@@ -3919,7 +4172,7 @@
        "name": "radius"
       }
      ],
-     "signature": "(self, name: 'str' = <factory>, default_position: 'tuple[float, float, float]' = <factory>, default_orientation: 'tuple[float, float, float, float]' = <factory>, fix_base_link: 'bool | None' = <factory>, enabled_gravity: 'bool' = <factory>, scale: 'float | tuple[float, float, float]' = <factory>, collision_enabled: 'bool' = <factory>, physics: 'PhysicStateType | None' = <factory>, mesh_density: 'float | None' = <factory>, collision_mesh_path: 'str | None' = <factory>, static_friction: 'float | None' = <factory>, dynamic_friction: 'float | None' = <factory>, restitution: 'float | None' = <factory>, linear_damping: 'float | None' = <factory>, angular_damping: 'float | None' = <factory>, mass: 'float' = <factory>, color: 'list[float]' = <factory>, radius: 'float' = <factory>) -> None"
+     "signature": "(self, name: 'str' = <factory>, default_position: 'tuple[float, float, float]' = <factory>, default_orientation: 'tuple[float, float, float, float]' = <factory>, fix_base_link: 'bool | None' = <factory>, enabled_gravity: 'bool' = <factory>, scale: 'float | tuple[float, float, float]' = <factory>, collision_enabled: 'bool' = <factory>, newton_hide_collision_shapes: 'bool' = <factory>, physics: 'PhysicStateType | None' = <factory>, mesh_density: 'float | None' = <factory>, collision_mesh_path: 'str | None' = <factory>, static_friction: 'float | None' = <factory>, dynamic_friction: 'float | None' = <factory>, restitution: 'float | None' = <factory>, linear_damping: 'float | None' = <factory>, angular_damping: 'float | None' = <factory>, mass: 'float' = <factory>, color: 'list[float]' = <factory>, radius: 'float' = <factory>) -> None"
     },
     "copy": {
      "params": [
@@ -4005,6 +4258,7 @@
     "enabled_gravity",
     "scale",
     "collision_enabled",
+    "newton_hide_collision_shapes",
     "physics",
     "mesh_density",
     "collision_mesh_path",
@@ -4065,6 +4319,11 @@
        "default": true,
        "kind": "POSITIONAL_OR_KEYWORD",
        "name": "collision_enabled"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "newton_hide_collision_shapes"
       },
       {
        "default": true,
@@ -4147,7 +4406,7 @@
        "name": "collapse_fixed_joints"
       }
      ],
-     "signature": "(self, name: 'str' = <factory>, default_position: 'tuple[float, float, float]' = <factory>, default_orientation: 'tuple[float, float, float, float]' = <factory>, fix_base_link: 'bool | None' = <factory>, enabled_gravity: 'bool' = <factory>, scale: 'float | tuple[float, float, float]' = <factory>, collision_enabled: 'bool' = <factory>, physics: 'PhysicStateType | None' = <factory>, mesh_density: 'float | None' = <factory>, collision_mesh_path: 'str | None' = <factory>, static_friction: 'float | None' = <factory>, dynamic_friction: 'float | None' = <factory>, restitution: 'float | None' = <factory>, linear_damping: 'float | None' = <factory>, angular_damping: 'float | None' = <factory>, mesh_path: 'str | None' = <factory>, usd_path: 'str | None' = <factory>, urdf_path: 'str | None' = <factory>, mjcf_path: 'str | None' = <factory>, mjx_mjcf_path: 'str | None' = <factory>, file_type: 'dict[str, str]' = <factory>, extra_resources: 'list[str]' = <factory>, collapse_fixed_joints: 'bool' = <factory>) -> None"
+     "signature": "(self, name: 'str' = <factory>, default_position: 'tuple[float, float, float]' = <factory>, default_orientation: 'tuple[float, float, float, float]' = <factory>, fix_base_link: 'bool | None' = <factory>, enabled_gravity: 'bool' = <factory>, scale: 'float | tuple[float, float, float]' = <factory>, collision_enabled: 'bool' = <factory>, newton_hide_collision_shapes: 'bool' = <factory>, physics: 'PhysicStateType | None' = <factory>, mesh_density: 'float | None' = <factory>, collision_mesh_path: 'str | None' = <factory>, static_friction: 'float | None' = <factory>, dynamic_friction: 'float | None' = <factory>, restitution: 'float | None' = <factory>, linear_damping: 'float | None' = <factory>, angular_damping: 'float | None' = <factory>, mesh_path: 'str | None' = <factory>, usd_path: 'str | None' = <factory>, urdf_path: 'str | None' = <factory>, mjcf_path: 'str | None' = <factory>, mjx_mjcf_path: 'str | None' = <factory>, file_type: 'dict[str, str]' = <factory>, extra_resources: 'list[str]' = <factory>, collapse_fixed_joints: 'bool' = <factory>) -> None"
     },
     "copy": {
      "params": [
@@ -4959,11 +5218,16 @@
     "newton_use_mujoco_contacts",
     "newton_mujoco_iterations",
     "newton_mujoco_ls_iterations",
+    "newton_mujoco_enable_multiccd",
     "newton_mujoco_disable_contacts",
     "num_threads",
     "use_gpu_pipeline",
     "use_gpu",
-    "mujoco_use_scenario_lights"
+    "mujoco_integrator",
+    "mujoco_actuator_limits_at_joint",
+    "mujoco_use_scenario_lights",
+    "newton_use_scenario_lights",
+    "newton_camera_background_rgb"
    ],
    "kind": "class",
    "methods": {
@@ -5162,6 +5426,11 @@
       {
        "default": true,
        "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "newton_mujoco_enable_multiccd"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
        "name": "newton_mujoco_disable_contacts"
       },
       {
@@ -5182,10 +5451,30 @@
       {
        "default": true,
        "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "mujoco_integrator"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "mujoco_actuator_limits_at_joint"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
        "name": "mujoco_use_scenario_lights"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "newton_use_scenario_lights"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "newton_camera_background_rgb"
       }
      ],
-     "signature": "(self, dt: 'float | None' = <factory>, bounce_threshold_velocity: 'float' = <factory>, contact_offset: 'float' = <factory>, num_position_iterations: 'int' = <factory>, num_velocity_iterations: 'int' = <factory>, friction_correlation_distance: 'float' = <factory>, friction_offset_threshold: 'float' = <factory>, replace_cylinder_with_capsule: 'bool' = <factory>, rest_offset: 'float' = <factory>, solver_type: 'int' = <factory>, substeps: 'int' = <factory>, max_depenetration_velocity: 'float' = <factory>, default_buffer_size_multiplier: 'int' = <factory>, sapien_enable_tgs: 'bool | None' = <factory>, sapien_enable_pcm: 'bool | None' = <factory>, sapien_default_static_friction: 'float | None' = <factory>, sapien_default_dynamic_friction: 'float | None' = <factory>, sapien_default_restitution: 'float | None' = <factory>, sapien_apply_scene_solver: 'bool | None' = <factory>, sapien_disable_default_lights: 'bool | None' = <factory>, sapien_load_multiple_collisions: 'bool | None' = <factory>, sapien_apply_global_physx: 'bool | None' = <factory>, sapien_sleep_threshold: 'float | None' = <factory>, sapien_bounce_threshold: 'float | None' = <factory>, sapien_enable_ccd: 'bool | None' = <factory>, sapien_enable_enhanced_determinism: 'bool | None' = <factory>, sapien_enable_friction_every_iteration: 'bool | None' = <factory>, sapien_disable_robot_gravity: 'bool | None' = <factory>, sapien_ground_altitude: 'float | None' = <factory>, sapien_drive_force_mode: 'str | None' = <factory>, superdex_control_mode: \"Literal['pd', 'implicit']\" = <factory>, superdex_solver_dt: 'float | None' = <factory>, nconmax: 'int | None' = <factory>, njmax: 'int | None' = <factory>, newton_use_mujoco_contacts: 'bool | None' = <factory>, newton_mujoco_iterations: 'int | None' = <factory>, newton_mujoco_ls_iterations: 'int | None' = <factory>, newton_mujoco_disable_contacts: 'bool' = <factory>, num_threads: 'int' = <factory>, use_gpu_pipeline: 'bool' = <factory>, use_gpu: 'bool' = <factory>, mujoco_use_scenario_lights: 'bool' = <factory>) -> None"
+     "signature": "(self, dt: 'float | None' = <factory>, bounce_threshold_velocity: 'float' = <factory>, contact_offset: 'float' = <factory>, num_position_iterations: 'int' = <factory>, num_velocity_iterations: 'int' = <factory>, friction_correlation_distance: 'float' = <factory>, friction_offset_threshold: 'float' = <factory>, replace_cylinder_with_capsule: 'bool' = <factory>, rest_offset: 'float' = <factory>, solver_type: 'int' = <factory>, substeps: 'int' = <factory>, max_depenetration_velocity: 'float' = <factory>, default_buffer_size_multiplier: 'int' = <factory>, sapien_enable_tgs: 'bool | None' = <factory>, sapien_enable_pcm: 'bool | None' = <factory>, sapien_default_static_friction: 'float | None' = <factory>, sapien_default_dynamic_friction: 'float | None' = <factory>, sapien_default_restitution: 'float | None' = <factory>, sapien_apply_scene_solver: 'bool | None' = <factory>, sapien_disable_default_lights: 'bool | None' = <factory>, sapien_load_multiple_collisions: 'bool | None' = <factory>, sapien_apply_global_physx: 'bool | None' = <factory>, sapien_sleep_threshold: 'float | None' = <factory>, sapien_bounce_threshold: 'float | None' = <factory>, sapien_enable_ccd: 'bool | None' = <factory>, sapien_enable_enhanced_determinism: 'bool | None' = <factory>, sapien_enable_friction_every_iteration: 'bool | None' = <factory>, sapien_disable_robot_gravity: 'bool | None' = <factory>, sapien_ground_altitude: 'float | None' = <factory>, sapien_drive_force_mode: 'str | None' = <factory>, superdex_control_mode: \"Literal['pd', 'implicit']\" = <factory>, superdex_solver_dt: 'float | None' = <factory>, nconmax: 'int | None' = <factory>, njmax: 'int | None' = <factory>, newton_use_mujoco_contacts: 'bool | None' = <factory>, newton_mujoco_iterations: 'int | None' = <factory>, newton_mujoco_ls_iterations: 'int | None' = <factory>, newton_mujoco_enable_multiccd: 'bool' = <factory>, newton_mujoco_disable_contacts: 'bool' = <factory>, num_threads: 'int' = <factory>, use_gpu_pipeline: 'bool' = <factory>, use_gpu: 'bool' = <factory>, mujoco_integrator: \"Literal['Euler', 'RK4', 'implicit', 'implicitfast'] | None\" = <factory>, mujoco_actuator_limits_at_joint: 'bool' = <factory>, mujoco_use_scenario_lights: 'bool' = <factory>, newton_use_scenario_lights: 'bool' = <factory>, newton_camera_background_rgb: 'tuple[int, int, int] | None' = <factory>) -> None"
     },
     "copy": {
      "params": [
@@ -6078,7 +6367,8 @@
  "metasim.task.rl_task": {
   "RLTaskEnv": {
    "attributes": {
-    "max_episode_steps": "int"
+    "max_episode_steps": "int",
+    "record_terminal_states": "bool"
    },
    "bases": [
     "BaseTaskEnv"
@@ -6198,7 +6488,8 @@
     "instance_seg_id2label": "NoneType",
     "intrinsics": "NoneType",
     "pos": "NoneType",
-    "quat_world": "NoneType"
+    "quat_world": "NoneType",
+    "valid_mask": "NoneType"
    },
    "bases": [],
    "fields": [
@@ -6210,7 +6501,8 @@
     "instance_seg_id2label",
     "pos",
     "quat_world",
-    "intrinsics"
+    "intrinsics",
+    "valid_mask"
    ],
    "kind": "class",
    "methods": {
@@ -6265,9 +6557,14 @@
        "default": true,
        "kind": "POSITIONAL_OR_KEYWORD",
        "name": "intrinsics"
+      },
+      {
+       "default": true,
+       "kind": "POSITIONAL_OR_KEYWORD",
+       "name": "valid_mask"
       }
      ],
-     "signature": "(self, rgb: 'CameraRgbTensor | None', depth: 'CameraDepthTensor | None', instance_id_seg: 'CameraSegmentationTensor | None' = None, instance_id_seg_id2label: 'dict[int, str] | None' = None, instance_seg: 'CameraSegmentationTensor | None' = None, instance_seg_id2label: 'dict[int, str] | None' = None, pos: 'CameraPosTensor | None' = None, quat_world: 'CameraQuatTensor | None' = None, intrinsics: 'CameraIntrinsicsTensor | None' = None) -> None"
+     "signature": "(self, rgb: 'CameraRgbTensor | None', depth: 'CameraDepthTensor | None', instance_id_seg: 'CameraSegmentationTensor | None' = None, instance_id_seg_id2label: 'dict[int, str] | None' = None, instance_seg: 'CameraSegmentationTensor | None' = None, instance_seg_id2label: 'dict[int, str] | None' = None, pos: 'CameraPosTensor | None' = None, quat_world: 'CameraQuatTensor | None' = None, intrinsics: 'CameraIntrinsicsTensor | None' = None, valid_mask: 'torch.Tensor | None' = None) -> None"
     },
     "quat_opengl": {
      "params": null,

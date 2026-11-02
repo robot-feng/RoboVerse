@@ -77,12 +77,23 @@ the field, the value and what is accepted, e.g. `ScenarioCfg.num_envs=0 is inval
 | `ScenarioCfg.robots`, `objects`, `cameras`, `lights` | a list of configs (a tuple is converted; a bare config is rejected) |
 | `SimParamCfg.dt` | `None` (the backend's default step) or a finite number > 0 |
 | `SimParamCfg.substeps` | integer >= 1 |
+| `SimParamCfg.mujoco_integrator` | `None`, `Euler`, `RK4`, `implicit`, or `implicitfast` |
 | camera `width`, `height` | integers >= 1 |
 | camera `pos`, `look_at` | three finite numbers |
 | `PinholeCameraCfg.focal_length`, `horizontal_aperture` | finite numbers > 0 |
 
 `from_dict` and direct attribute assignment bypass these checks; call `update(...)` to patch a config
 with validation.
+
+`mujoco_integrator` applies only to the MuJoCo backend. Its default, `None`,
+preserves the integrator authored by the scene. An explicit setting can help
+with stiff drives, but it does not by itself establish cross-simulator dynamics parity.
+
+MuJoCo has one global render near plane, expressed as a fraction of the model
+extent. When cameras declare `clipping_range`, MetaSim brings that plane close
+enough to include the smallest requested near distance, while retaining any
+closer plane already authored in the scene. This shared setting cannot enforce
+different near planes per camera; the far plane is unchanged.
 
 ---
 

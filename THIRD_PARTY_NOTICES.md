@@ -34,6 +34,13 @@ below. If you cannot name the upstream and its license, do not merge it.
 
 | Path in this repo | Upstream | License | Relationship | License text |
 |---|---|---|---|---|
+| `roboverse_pack/tasks/icl/fruit_sorting.py` | [Genie Sim benchmark](https://github.com/AgibotTech/genie_sim) © 2023–2026 AgiBot Inc. | MPL-2.0 | Adapted | `roboverse_pack/tasks/icl/LICENSE.geniesim-benchmark` |
+| `roboverse_pack/tasks/icl/geniesim_benchmark.py` | [Genie Sim benchmark](https://github.com/AgibotTech/genie_sim) © 2023–2026 AgiBot Inc. | MPL-2.0 | Adapted | `roboverse_pack/tasks/icl/LICENSE.geniesim-benchmark` |
+| `roboverse_pack/tasks/icl/geniesim_checker.py` | [Genie Sim benchmark](https://github.com/AgibotTech/genie_sim) © 2023–2026 AgiBot Inc. | MPL-2.0 | Adapted | `roboverse_pack/tasks/icl/LICENSE.geniesim-benchmark` |
+| `tests/fixtures/icl/geniesim/g1op_s2r_select_color/problem1.json` | [Genie Sim benchmark](https://github.com/AgibotTech/genie_sim) © 2023–2026 AgiBot Inc. | MPL-2.0 | Reduced source-checker fixture | `roboverse_pack/tasks/icl/LICENSE.geniesim-benchmark` |
+| `tests/fixtures/icl/geniesim/g1op_s2r_pack_in_supermarket/problem1.json` | [Genie Sim benchmark](https://github.com/AgibotTech/genie_sim) © 2023–2026 AgiBot Inc. | MPL-2.0 | Reduced source-checker fixture | `roboverse_pack/tasks/icl/LICENSE.geniesim-benchmark` |
+| `roboverse_pack/tasks/imitator_game/pick_apple_basket.py`, `roboverse_pack/tasks/imitator_game/clean_desk.py` | [The Imitator Game](https://github.com/imitator-game/The-Imitator-Game) | MIT | Reimplemented H7/H19 task specifications; no upstream code copied | `roboverse_pack/tasks/imitator_game/LICENSE.The-Imitator-Game` |
+| `roboverse_data/icl/robots/geniesim_g2_omnipicker/` (generated locally) | [Genie Sim robot model](https://github.com/AgibotTech/genie_sim_robot_model) © 2023–2026 AgiBot Inc. | Apache-2.0 | Adapted assets | Source `LICENSE` and `THIRD_PARTY_NOTICES` are retained beside the generated model; Wuji assets are excluded. |
 | `roboverse_learn/rl/fast_td3/` | [FastTD3](https://github.com/younggyoseo/FastTD3) © 2025 Younggyo Seo | MIT | Vendored | `roboverse_learn/rl/fast_td3/LICENSE` |
 | `examples/rl/fast_td3/` | [FastTD3](https://github.com/younggyoseo/FastTD3) © 2025 Younggyo Seo | MIT | Vendored | `examples/rl/fast_td3/LICENSE` |
 | `roboverse_learn/rl/clean_rl/` | [CleanRL](https://github.com/vwxyzjn/cleanrl) © 2019 CleanRL developers | MIT | Adapted | `roboverse_learn/rl/clean_rl/LICENSE` |

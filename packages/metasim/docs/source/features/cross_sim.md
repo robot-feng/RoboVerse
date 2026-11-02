@@ -2,6 +2,28 @@
 
 MetaSim enables you to write code once and run it across multiple physics simulators without modifications. This is one of the core features that makes RoboVerse a unified platform for robot learning.
 
+Newton can display collision-only URDF geometry when no visual shapes are
+present. Set `newton_hide_collision_shapes=True` on a rigid-object config to
+hide its Newton collision shapes while retaining collision behavior. The option
+defaults to `False` and does not change other simulator backends.
+
+For Newton's MuJoCo solver, `SimParamCfg(newton_mujoco_enable_multiccd=True)`
+opts in to multiple contacts for convex meshes. This can improve face-to-face
+contact stability; it requires MuJoCo contacts and leaves the existing solver
+default unchanged when off. It does not make material and friction behavior
+identical across engines.
+
+MuJoCo scenarios may opt in to
+`SimParamCfg(mujoco_actuator_limits_at_joint=True)`. For a robot joint with
+exactly one unit-gear direct actuator, the backend applies the intersection of
+the existing actuator and joint force ranges at the joint. At a fixed state,
+the resulting joint actuator force is unchanged; the location of the clamp can
+change implicit-integration dynamics for stiff drives. Passive, contact and
+constraint forces are not included in this actuator-force limit. The option
+defaults to `False`; unsupported transmissions, multiple actuators on a
+converted joint and actuator-routed gravity compensation raise an error. It
+does not implement a joint velocity limit.
+
 ---
 
 ## Supported Simulators

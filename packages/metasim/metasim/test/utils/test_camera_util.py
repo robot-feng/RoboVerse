@@ -4,10 +4,91 @@ These are pure unit tests for camera utility functions.
 All tests are marked @pytest.mark.general.
 """
 
+import numpy as np
 import pytest
 import torch
 
 from metasim.utils.camera_util import get_cam_params
+
+
+@pytest.mark.general
+def test_fisheye_rays_and_cubemap_respect_lens_geometry():
+    from metasim.scenario.cameras import FisheyeCameraCfg
+    from metasim.utils.fisheye import cubemap_lookup, fisheye_rays, sample_cubemap_rgb
+
+    camera = FisheyeCameraCfg(
+        width=5, height=5, calibration_size=(5, 5), optical_center=(2.5, 2.5),
+        focal_length_px=(1, 1), coefficients=(0, 0, 0, 0), max_fov_rad=4.4,
+    )
+    rays, valid = fisheye_rays(camera)
+    np.testing.assert_allclose(rays[2, 2], [0, 0, -1], atol=1e-6)
+    np.testing.assert_allclose(rays[2, 3], [np.sin(1), 0, -np.cos(1)], atol=1e-6)
+    assert not valid[0, 0] and valid[2, 3]
+    lookup = cubemap_lookup(rays, valid, 8)
+    faces = [np.full((8, 8, 3), (index * 30, 0, 0), dtype=np.uint8) for index in range(6)]
+    image = sample_cubemap_rgb(faces, lookup, valid)
+    assert image[2, 2, 0] == 150  # -Z face
+    assert image[2, 3, 0] == 0  # +X face
+    assert np.array_equal(image[0, 0], [0, 0, 0])  # outside calibrated FOV
+
+
+@pytest.mark.general
+def test_fisheye_rejects_ambiguous_polynomial_domain():
+    from metasim.scenario.cameras import FisheyeCameraCfg
+    from metasim.utils.fisheye import fisheye_rays
+
+    camera = FisheyeCameraCfg(
+        width=8, height=8, calibration_size=(8, 8), optical_center=(4, 4),
+        focal_length_px=(2, 2), coefficients=(-1, 0, 0, 0), max_fov_rad=3,
+    )
+    with pytest.raises(ValueError, match="invertible"):
+        fisheye_rays(camera)
+
+
+@pytest.mark.general
+def test_opencv_pinhole_distortion_is_applied_to_rgb_without_mutating_source():
+    pytest.importorskip("cv2")
+    from metasim.scenario.cameras import PinholeCameraCfg
+    from metasim.utils.pinhole import apply_opencv_pinhole_distortion, opencv_pinhole_valid_mask
+
+    camera = PinholeCameraCfg(
+        name="test_rgb",
+        width=64,
+        height=48,
+        intrinsic=[[48.0, 0.0, 31.5], [0.0, 48.0, 23.5], [0.0, 0.0, 1.0]],
+        opencv_distortion=(-0.35, 0.08, 0.0, 0.0, 0.0),
+        distortion_source="unit_test",
+    )
+    source = torch.zeros((1, 48, 64, 3), dtype=torch.uint8)
+    source[:, :, 32:, :] = 255
+    original = source.clone()
+
+    result = apply_opencv_pinhole_distortion(source, camera)
+
+    assert result.shape == source.shape
+    assert result.dtype == source.dtype
+    assert result.device == source.device
+    assert torch.equal(source, original)
+    assert not torch.equal(result, source)
+    valid = opencv_pinhole_valid_mask(camera)
+    assert valid.shape == (48, 64)
+    assert valid.dtype == torch.bool
+    assert valid.any() and (~valid).any()
+
+
+@pytest.mark.general
+def test_opencv_pinhole_zero_distortion_returns_original_rgb():
+    from metasim.scenario.cameras import PinholeCameraCfg
+    from metasim.utils.pinhole import apply_opencv_pinhole_distortion
+
+    camera = PinholeCameraCfg(
+        width=8,
+        height=6,
+        intrinsic=[[4.0, 0.0, 3.5], [0.0, 4.0, 2.5], [0.0, 0.0, 1.0]],
+        opencv_distortion=(0.0, 0.0, 0.0, 0.0),
+    )
+    source = torch.zeros((1, 6, 8, 3), dtype=torch.uint8)
+    assert apply_opencv_pinhole_distortion(source, camera) is source
 
 
 @pytest.mark.general

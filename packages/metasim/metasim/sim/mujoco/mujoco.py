@@ -7,7 +7,9 @@ import numpy as np
 import torch
 from dm_control import mjcf
 from loguru import logger as log
+from scipy.spatial.transform import Rotation
 
+from metasim.scenario.cameras import FisheyeCameraCfg
 from metasim.scenario.objects import ArticulationObjCfg, PrimitiveCubeCfg, PrimitiveCylinderCfg, PrimitiveSphereCfg
 from metasim.scenario.robot import RobotCfg
 from metasim.sim.mujoco.renderer_teardown import attach_renderer_teardown, close_renderer
@@ -25,7 +27,8 @@ import threading
 from metasim.queries.base import BaseQueryType
 from metasim.sim import BaseSimHandler
 from metasim.types import CompatActionInput
-from metasim.utils.camera_util import camera_pose_fields
+from metasim.utils.camera_util import camera_pose_fields, camera_quat_world_from_opengl
+from metasim.utils.fisheye import CUBEMAP_ROTATIONS, cubemap_lookup, fisheye_rays, sample_cubemap_rgb
 from metasim.utils.state import (
     CameraState,
     ObjectState,
@@ -81,6 +84,74 @@ MUJOCO_ARENA_MEMORY = "512M"
 """Default `<size memory>` for models built by this handler (override via the scene MJCF)."""
 
 
+def _include_camera_near_planes(model, cameras) -> None:
+    """Avoid clipping any configured camera's near range in MuJoCo's global view.
+
+    MuJoCo specifies its near plane as a fraction of the compiled model extent,
+    unlike the absolute distances in PinholeCameraCfg. Keep a nearer authored
+    plane unchanged; different camera ranges cannot be represented exactly by
+    this shared option. The existing far plane is not modified.
+    """
+    distances = []
+    for camera in cameras:
+        clipping = getattr(camera, "clipping_range", None)
+        if clipping is None:
+            continue
+        if len(clipping) != 2 or not np.isfinite(clipping).all() or not 0 < clipping[0] < clipping[1]:
+            raise ValueError(f"Camera {camera.name!r} has an invalid clipping_range")
+        distances.append(float(clipping[0]))
+    if not distances:
+        return
+    extent = float(model.stat.extent)
+    if not np.isfinite(extent) or extent <= 0:
+        raise ValueError("MuJoCo model extent must be finite and positive for camera clipping")
+    model.vis.map.znear = min(float(model.vis.map.znear), min(distances) / extent)
+
+
+def _move_actuator_limits_to_joints(model, joint_ids: list[int]) -> int:
+    """Move direct, single-actuator limits to the equivalent joint-force bounds.
+
+    The combined output of a single unit-gear joint actuator is unchanged at
+    a given state. The location of the clamp can change implicit integration.
+    Validate every candidate before modifying the model.
+    """
+    direct = int(mujoco.mjtTrn.mjTRN_JOINT)
+    if np.any(model.actuator_trntype != direct):
+        raise ValueError("Joint actuator limits require only direct joint transmissions in the model")
+    pending = []
+    for joint_id in dict.fromkeys(joint_ids):
+        if not 0 <= joint_id < model.njnt:
+            raise ValueError(f"Invalid MuJoCo joint index: {joint_id}")
+        actuator_ids = np.flatnonzero(model.actuator_trnid[:, 0] == joint_id)
+        limited = [int(aid) for aid in actuator_ids if model.actuator_forcelimited[aid]]
+        if not limited:
+            continue
+        if len(actuator_ids) != 1:
+            raise ValueError(f"Joint {joint_id} has multiple actuators; force limits cannot be moved safely")
+        aid = limited[0]
+        if not np.array_equal(model.actuator_gear[aid], [1, 0, 0, 0, 0, 0]):
+            raise ValueError(f"Actuator {aid} is not a unit-gear direct drive")
+        if int(model.jnt_type[joint_id]) not in (int(mujoco.mjtJoint.mjJNT_HINGE), int(mujoco.mjtJoint.mjJNT_SLIDE)):
+            raise ValueError(f"Joint {joint_id} is not a scalar hinge or slide")
+        if hasattr(model, "jnt_actgravcomp") and model.jnt_actgravcomp[joint_id]:
+            raise ValueError(f"Joint {joint_id} adds gravity compensation to actuator force")
+        actuator_range = np.asarray(model.actuator_forcerange[aid], dtype=float)
+        joint_range = (
+            np.asarray(model.jnt_actfrcrange[joint_id], dtype=float)
+            if model.jnt_actfrclimited[joint_id]
+            else np.array([-np.inf, np.inf])
+        )
+        lower, upper = max(actuator_range[0], joint_range[0]), min(actuator_range[1], joint_range[1])
+        if not np.isfinite([lower, upper]).all() or lower > upper:
+            raise ValueError(f"Joint {joint_id} has invalid or disjoint actuator force bounds")
+        pending.append((joint_id, aid, lower, upper))
+    for joint_id, aid, lower, upper in pending:
+        model.jnt_actfrclimited[joint_id] = 1
+        model.jnt_actfrcrange[joint_id] = (lower, upper)
+        model.actuator_forcelimited[aid] = 0
+    return len(pending)
+
+
 class MujocoHandler(BaseSimHandler):
     set_states_restores_velocities = True  # ``_set_root_state`` / ``_set_joint_state`` write qvel
     set_states_restores_dict_velocities = True  # the dict path writes them too
@@ -112,6 +183,7 @@ class MujocoHandler(BaseSimHandler):
         self.cameras = []
         for camera in scenario.cameras:
             self.cameras.append(camera)
+        self._fisheye_cameras = {}
         self._episode_length_buf = 0
 
         self._current_action = None
@@ -152,6 +224,7 @@ class MujocoHandler(BaseSimHandler):
         model = self._init_mujoco()
         self.physics = mjcf.Physics.from_mjcf_model(model)
         self.data = self.physics.data
+        _include_camera_near_planes(self.physics.model.ptr, self.cameras)
 
         # === Export MJCF + assets to a temp dir. Handle filename variability (dm_control 1.0.34). ===
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -177,6 +250,7 @@ class MujocoHandler(BaseSimHandler):
             # Load the model from the XML *in the same directory as the exported assets*
             # so hashed filenames resolve correctly.
             self._mj_model = mujoco.MjModel.from_xml_path(xml_path)
+            _include_camera_near_planes(self._mj_model, self.cameras)
             self._mj_data = mujoco.MjData(self._mj_model)
 
         # load the ground
@@ -202,6 +276,14 @@ class MujocoHandler(BaseSimHandler):
             self.robot_body_names.extend(robot_body_names)
 
         self._init_torque_control()
+        if self.scenario.sim_params.mujoco_actuator_limits_at_joint:
+            joint_ids = [
+                self.physics.model.joint(f"{self._mujoco_robot_names[index]}{name}").id
+                for index, robot in enumerate(self.robots)
+                for name in self._get_joint_names(robot.name, sort=True)
+            ]
+            converted = _move_actuator_limits_to_joints(self.physics.model.ptr, joint_ids)
+            log.debug(f"Moved {converted} single-actuator force limit(s) to their joints")
         self._apply_default_joint_positions()
 
         if not self.headless:
@@ -419,6 +501,8 @@ class MujocoHandler(BaseSimHandler):
             mjcf_model.option.timestep = self.scenario.sim_params.dt
         else:
             mjcf_model.option.timestep = 0.001
+        if self.scenario.sim_params.mujoco_integrator is not None:
+            mjcf_model.option.integrator = self.scenario.sim_params.mujoco_integrator
         self._add_ground(mjcf_model)
         self._add_objects_to_model(mjcf_model)
         self._add_robots_to_model(mjcf_model)
@@ -569,6 +653,43 @@ class MujocoHandler(BaseSimHandler):
             camera_name = f"{camera.name}_custom"
             camera_max_width = max(camera_max_width, camera.width)
             camera_max_height = max(camera_max_height, camera.height)
+
+            if isinstance(camera, FisheyeCameraCfg):
+                if set(camera.data_types) != {"rgb"}:
+                    raise NotImplementedError("MuJoCo fisheye cameras currently support RGB only")
+                if self.scenario.gs_scene is not None and self.scenario.gs_scene.with_gs_background:
+                    raise NotImplementedError("MuJoCo fisheye cameras do not support Gaussian-splat backgrounds")
+                face_size = max(camera.width, camera.height)
+                camera_max_width = max(camera_max_width, face_size)
+                camera_max_height = max(camera_max_height, face_size)
+                rays, valid = fisheye_rays(camera)
+                self._fisheye_cameras[camera.name] = (face_size, cubemap_lookup(rays, valid, face_size), valid)
+                if camera.mount_to is not None:
+                    model_prefix = self.mj_objects[camera.mount_to].model
+                    body = mjcf_model.find("body", f"{model_prefix}/{camera.mount_link.split('/')[-1]}")
+                    if body is None:
+                        raise ValueError(f"Camera {camera.name!r} mount body was not found")
+                    position = camera.mount_pos
+                    rotation = Rotation.from_quat(camera.mount_quat, scalar_first=True)
+                else:
+                    body = mjcf_model.worldbody
+                    position = camera.pos
+                    direction = np.asarray(camera.look_at) - np.asarray(camera.pos)
+                    norm = np.linalg.norm(direction)
+                    if norm == 0:
+                        raise ValueError(f"Camera {camera.name!r} position and look_at coincide")
+                    direction = direction / norm
+                    up = np.array([0., 0., 1.])
+                    if abs(np.dot(direction, up)) > 0.999:
+                        up = np.array([0., 1., 0.])
+                    right = np.cross(direction, up)
+                    right /= np.linalg.norm(right)
+                    rotation = Rotation.from_matrix(np.column_stack((right, np.cross(right, direction), -direction)))
+                for index, face_rotation in enumerate([np.eye(3), *CUBEMAP_ROTATIONS]):
+                    quat = (rotation * Rotation.from_matrix(face_rotation)).as_quat(scalar_first=True)
+                    name = camera_name if index == 0 else f"{camera_name}_face_{index - 1}"
+                    body.add("camera", name=name, mode="fixed", pos=position, quat=quat, fovy=90)
+                continue
 
             mount_to = camera.mount_to
             if mount_to is not None:
@@ -891,6 +1012,34 @@ class MujocoHandler(BaseSimHandler):
                 camera_id = f"{self.mj_objects[camera.mount_to].model}/{camera.name}_custom"
             else:
                 camera_id = f"{camera.name}_custom"
+
+            if isinstance(camera, FisheyeCameraCfg):
+                face_size, lookup, valid = self._fisheye_cameras[camera.name]
+                faces = []
+                for index in range(6):
+                    face_id = f"{camera_id}_face_{index}"
+                    if sys.platform == "darwin":
+                        with self._mj_lock:
+                            if self.renderer is None or (self.renderer.width, self.renderer.height) != (face_size, face_size):
+                                self._new_renderer(face_size, face_size)
+                            self._mirror_state_to_native()
+                            self.renderer.update_scene(self._mj_data, camera=face_id)
+                            face = self.renderer.render().copy()
+                    else:
+                        face = self.physics.render(width=face_size, height=face_size, camera_id=face_id, depth=False)
+                    faces.append(face)
+                rendered = sample_cubemap_rgb(np.stack(faces), lookup, valid)
+                mid = self.physics.model.camera(camera_id).id
+                rotation = torch.from_numpy(self.physics.data.cam_xmat[mid].reshape(3, 3).copy()).unsqueeze(0)
+                camera_states[camera.name] = CameraState(
+                    rgb=torch.from_numpy(np.ascontiguousarray(rendered)).unsqueeze(0),
+                    depth=None,
+                    pos=torch.from_numpy(self.physics.data.cam_xpos[mid].copy()).float().unsqueeze(0),
+                    quat_world=camera_quat_world_from_opengl(rotation),
+                    valid_mask=torch.from_numpy(valid.copy()).unsqueeze(0),
+                    intrinsics=None,
+                )
+                continue
 
             rgb = None
             depth = None
