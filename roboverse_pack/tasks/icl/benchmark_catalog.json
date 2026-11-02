@@ -1,0 +1,3484 @@
+{
+  "format": "roboverse.icl.benchmark_catalog.v1",
+  "source": {
+    "name": "Genie Sim Benchmark",
+    "repository": "https://github.com/AgibotTech/genie_sim",
+    "revision": "cd46c52d89e2ad40a62e1af7aa05b7ab1c67f7b7",
+    "revision_scope": "Task configs, evaluation configs, scene inputs, and benchmark runtime; see the GenieSim inventory audit for the exact upstream tree comparison and local package differences.",
+    "content_sha256": "f0cd8166a1e0fba4739f8c15500262718e55ac3cdadc83b4ec0e47e41cddb8a4",
+    "license": "MPL-2.0",
+    "config_root": "config/"
+  },
+  "scope": {
+    "configuration_count": 86,
+    "semantic_task_count": 36,
+    "configuration_family_counts": {
+      "if": 10,
+      "manip": 10,
+      "robust_backgen": 10,
+      "robust_camposgen": 10,
+      "robust_camqualgen": 10,
+      "robust_instructgen": 10,
+      "robust_posegen": 10,
+      "s2r": 8,
+      "spatial": 8
+    },
+    "robot_configuration_counts": {
+      "g1_op": 8,
+      "g2_op": 78
+    },
+    "scene_instance_count": 759,
+    "scene_instance_task_assignment_count": 854,
+    "behavioral_parity_claimed": false,
+    "shared_task_runtime": {
+      "roboverse_task": "icl.geniesim_benchmark",
+      "source_robots": [
+        "g1_op",
+        "g2_op"
+      ],
+      "joint_position_action_dimensions": {
+        "g1_op": 20,
+        "g2_op": 24
+      },
+      "synthicl_action_dimensions": 7,
+      "synthicl_action_spec": "tcp_world_delta_xyz_rotvec_gripper_open_v1",
+      "bimanual_tcp_action_dimensions": 14,
+      "action_modes": [
+        "joint_position",
+        "tcp_delta",
+        "bimanual_tcp_delta"
+      ],
+      "cartesian_controller_arm": "source_or_explicit_default_right",
+      "configured_control_rate_hz": 30,
+      "control_and_timing_parity": "not_verified",
+      "supported_simulators": [
+        "mujoco",
+        "genesis",
+        "newton"
+      ],
+      "default_cameras": [
+        "head_rgb",
+        "head_fisheye_left",
+        "head_fisheye_right"
+      ],
+      "camera_projection_note": "OpenCV fisheye; G1 temporarily borrows G2 optical calibration",
+      "supported_run_count": 86,
+      "smoke_tested_run_count": 0,
+      "source_asset_blocked_run_count": 0,
+      "smoke_tested_with_asset_alias_run_count": 0,
+      "validation_source_revision": "unknown",
+      "validation_source_content_sha256": "95ffb5b92eb03b38824581cf64b83d83d983296110a0fd2cab90aca2aeafda2c",
+      "validation_import_payload_sha256": "8ee1bead07b566db5f7367cded56c3442fd918b6c28cf3e5434b06f037d70bba",
+      "active_import_payload_sha256": "2054e9269643c3240f09116b423f92d71aa687d88847bfe0f6768c406422aa35",
+      "validation_scope": "Historical reset/render/one-step checks used the legacy import without USD scene snapshots or task-specific reset poses.",
+      "historical_smoke_tested_run_count": 80,
+      "historical_smoke_with_asset_alias_run_count": 6,
+      "status": "implemented_unverified",
+      "behavioral_parity": "not_verified",
+      "limitations": [
+        "Eight pick_object_type scenes name waic_beverage_bottle_009 in metadata but their USD payloads explicitly reference genie_beverage_bottle_009; the legacy metadata-only import used an unverified compatibility alias",
+        "articulated source assets use converted URDF/MJCF approximations",
+        "source controller and demonstration parity",
+        "cross-backend PBR and room-rendering parity",
+        "physical G1 fisheye calibration and cross-backend visual parity",
+        "VLM scoring"
+      ]
+    }
+  },
+  "source_checker_vocabulary": [
+    "Follow",
+    "InBBox",
+    "Inside",
+    "LiftUp",
+    "MixedRules",
+    "Onfloor",
+    "PickUpOnGripper",
+    "PushPull",
+    "RelativePosition",
+    "StableGrasp",
+    "Stack",
+    "StepOut",
+    "Upright",
+    "VLM"
+  ],
+  "checker_status": {
+    "prototype_predicates": [
+      "Inside"
+    ],
+    "implemented_checkers": [
+      "Cover",
+      "Follow",
+      "InBBox",
+      "Inside",
+      "LiftUp",
+      "MixedRules",
+      "Onfloor",
+      "Ontop",
+      "PickUpOnGripper",
+      "PushPull",
+      "RelativePosition",
+      "StableGrasp",
+      "Stack",
+      "StepOut",
+      "Upright"
+    ],
+    "external_scoring_checkers": [
+      "VLM"
+    ],
+    "graph_operators": [
+      "ActionList",
+      "ActionSetWaitAny",
+      "ActionSetWaitAll",
+      "ActionSetWaitSome"
+    ],
+    "parity_verified_predicates": []
+  },
+  "semantic_tasks": [
+    {
+      "robot": "g1_op",
+      "subtask": "bimanual_chip_handover",
+      "scene_families": [
+        "table_task_g1_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/bimanual_chip_handover/<instance>/",
+      "run_ids": [
+        "g1op_s2r_bimanual_chip_handover"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g1_op",
+      "subtask": "pack_in_supermarket",
+      "scene_families": [
+        "table_task_g1_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/pack_in_supermarket/<instance>/",
+      "run_ids": [
+        "g1op_s2r_pack_in_supermarket"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g1_op",
+      "subtask": "pick_block_color",
+      "scene_families": [
+        "table_task_g1_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/pick_block_color/<instance>/",
+      "run_ids": [
+        "g1op_s2r_select_color"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g1_op",
+      "subtask": "pick_block_size",
+      "scene_families": [
+        "table_task_g1_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "3",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "4",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44",
+        "45",
+        "46",
+        "47",
+        "48",
+        "49",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/pick_block_size/<instance>/",
+      "run_ids": [
+        "g1op_s2r_size_recognize"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g1_op",
+      "subtask": "pick_specific_object",
+      "scene_families": [
+        "table_task_g1_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/pick_specific_object/<instance>/",
+      "run_ids": [
+        "g1op_s2r_grasp_targets"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g1_op",
+      "subtask": "place_block_into_drawer",
+      "scene_families": [
+        "drawer_task_g1_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/place_block_into_drawer/<instance>/",
+      "run_ids": [
+        "g1op_s2r_place_block_into_drawer"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g1_op",
+      "subtask": "place_object_into_box_color",
+      "scene_families": [
+        "table_task_g1_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/place_object_into_box_color/<instance>/",
+      "run_ids": [
+        "g1op_s2r_organize_items"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g1_op",
+      "subtask": "sort_fruit",
+      "scene_families": [
+        "table_task_g1_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/sort_fruit/<instance>/",
+      "run_ids": [
+        "g1op_s2r_sort_fruit"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "clean_the_desktop",
+      "scene_families": [
+        "study_room_05_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/clean_the_desktop/<instance>/",
+      "run_ids": [
+        "g2op_manip_clean_the_desktop"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "hold_pot",
+      "scene_families": [
+        "kitchen_02_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/hold_pot/<instance>/",
+      "run_ids": [
+        "g2op_manip_bimanual_hold_pot"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "open_door",
+      "scene_families": [
+        "home_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/open_door/<instance>/",
+      "run_ids": [
+        "g2op_manip_open_door"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "pick_billiards_color",
+      "scene_families": [
+        "table_task_1_g2_op",
+        "table_task_1_g2_op_backgen",
+        "table_task_1_g2_op_camposgen",
+        "table_task_1_g2_op_camqualgen",
+        "table_task_1_g2_op_instructgen",
+        "table_task_1_g2_op_posegen"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/pick_billiards_color/<instance>/",
+      "run_ids": [
+        "g2op_if_pick_billiards_color",
+        "g2op_robust_backgen_pick_billiards_color",
+        "g2op_robust_camposgen_pick_billiards_color",
+        "g2op_robust_camqualgen_pick_billiards_color",
+        "g2op_robust_instructgen_pick_billiards_color",
+        "g2op_robust_posegen_pick_billiards_color"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "pick_block_color",
+      "scene_families": [
+        "table_task_1_g2_op",
+        "table_task_1_g2_op_backgen",
+        "table_task_1_g2_op_camposgen",
+        "table_task_1_g2_op_camqualgen",
+        "table_task_1_g2_op_instructgen",
+        "table_task_1_g2_op_posegen"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/pick_block_color/<instance>/",
+      "run_ids": [
+        "g2op_if_pick_block_color",
+        "g2op_robust_backgen_pick_block_color",
+        "g2op_robust_camposgen_pick_block_color",
+        "g2op_robust_camqualgen_pick_block_color",
+        "g2op_robust_instructgen_pick_block_color",
+        "g2op_robust_posegen_pick_block_color"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "pick_block_number",
+      "scene_families": [
+        "table_task_0_g2_op",
+        "table_task_0_g2_op_backgen",
+        "table_task_0_g2_op_camposgen",
+        "table_task_0_g2_op_camqualgen",
+        "table_task_0_g2_op_instructgen",
+        "table_task_0_g2_op_posegen"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/pick_block_number/<instance>/",
+      "run_ids": [
+        "g2op_if_pick_block_number",
+        "g2op_robust_backgen_pick_block_number",
+        "g2op_robust_camposgen_pick_block_number",
+        "g2op_robust_camqualgen_pick_block_number",
+        "g2op_robust_instructgen_pick_block_number",
+        "g2op_robust_posegen_pick_block_number"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "pick_block_shape",
+      "scene_families": [
+        "table_task_0_g2_op",
+        "table_task_0_g2_op_backgen",
+        "table_task_0_g2_op_camposgen",
+        "table_task_0_g2_op_camqualgen",
+        "table_task_0_g2_op_instructgen",
+        "table_task_0_g2_op_posegen"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/pick_block_shape/<instance>/",
+      "run_ids": [
+        "g2op_if_pick_block_shape",
+        "g2op_robust_backgen_pick_block_shape",
+        "g2op_robust_camposgen_pick_block_shape",
+        "g2op_robust_camqualgen_pick_block_shape",
+        "g2op_robust_instructgen_pick_block_shape",
+        "g2op_robust_posegen_pick_block_shape"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "pick_block_size",
+      "scene_families": [
+        "table_task_1_g2_op",
+        "table_task_1_g2_op_backgen",
+        "table_task_1_g2_op_camposgen",
+        "table_task_1_g2_op_camqualgen",
+        "table_task_1_g2_op_instructgen",
+        "table_task_1_g2_op_posegen"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "3",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "4",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44",
+        "45",
+        "46",
+        "47",
+        "48",
+        "49",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/pick_block_size/<instance>/",
+      "run_ids": [
+        "g2op_if_pick_block_size",
+        "g2op_robust_backgen_pick_block_size",
+        "g2op_robust_camposgen_pick_block_size",
+        "g2op_robust_camqualgen_pick_block_size",
+        "g2op_robust_instructgen_pick_block_size",
+        "g2op_robust_posegen_pick_block_size"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "pick_common_sense",
+      "scene_families": [
+        "table_task_0_g2_op",
+        "table_task_0_g2_op_backgen",
+        "table_task_0_g2_op_camposgen",
+        "table_task_0_g2_op_camqualgen",
+        "table_task_0_g2_op_instructgen",
+        "table_task_0_g2_op_posegen"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/pick_common_sense/<instance>/",
+      "run_ids": [
+        "g2op_if_pick_common_sense",
+        "g2op_robust_backgen_pick_common_sense",
+        "g2op_robust_camposgen_pick_common_sense",
+        "g2op_robust_camqualgen_pick_common_sense",
+        "g2op_robust_instructgen_pick_common_sense",
+        "g2op_robust_posegen_pick_common_sense"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "pick_follow_logic_or",
+      "scene_families": [
+        "table_task_0_g2_op",
+        "table_task_0_g2_op_backgen",
+        "table_task_0_g2_op_camposgen",
+        "table_task_0_g2_op_camqualgen",
+        "table_task_0_g2_op_instructgen",
+        "table_task_0_g2_op_posegen"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "3",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "4",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44",
+        "45",
+        "46",
+        "47",
+        "48",
+        "49",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/pick_follow_logic_or/<instance>/",
+      "run_ids": [
+        "g2op_if_pick_follow_logic_or",
+        "g2op_robust_backgen_pick_follow_logic_or",
+        "g2op_robust_camposgen_pick_follow_logic_or",
+        "g2op_robust_camqualgen_pick_follow_logic_or",
+        "g2op_robust_instructgen_pick_follow_logic_or",
+        "g2op_robust_posegen_pick_follow_logic_or"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "pick_object_absolute_position",
+      "scene_families": [
+        "table_task_2_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/pick_object_absolute_position/<instance>/",
+      "run_ids": [
+        "g2op_spatial_pick_object_absolute_position"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "pick_object_relative_position",
+      "scene_families": [
+        "table_task_2_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/pick_object_relative_position/<instance>/",
+      "run_ids": [
+        "g2op_spatial_pick_object_relative_position"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "pick_object_type",
+      "scene_families": [
+        "table_task_0_g2_op",
+        "table_task_0_g2_op_backgen",
+        "table_task_0_g2_op_camposgen",
+        "table_task_0_g2_op_camqualgen",
+        "table_task_0_g2_op_instructgen",
+        "table_task_0_g2_op_posegen"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/pick_object_type/<instance>/",
+      "run_ids": [
+        "g2op_if_pick_object_type",
+        "g2op_robust_backgen_pick_object_type",
+        "g2op_robust_camposgen_pick_object_type",
+        "g2op_robust_camqualgen_pick_object_type",
+        "g2op_robust_instructgen_pick_object_type",
+        "g2op_robust_posegen_pick_object_type"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "pick_specific_object",
+      "scene_families": [
+        "table_task_0_g2_op",
+        "table_task_0_g2_op_backgen",
+        "table_task_0_g2_op_camposgen",
+        "table_task_0_g2_op_camqualgen",
+        "table_task_0_g2_op_instructgen",
+        "table_task_0_g2_op_posegen"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/pick_specific_object/<instance>/",
+      "run_ids": [
+        "g2op_if_pick_specific_object",
+        "g2op_robust_backgen_pick_specific_object",
+        "g2op_robust_camposgen_pick_specific_object",
+        "g2op_robust_camqualgen_pick_specific_object",
+        "g2op_robust_instructgen_pick_specific_object",
+        "g2op_robust_posegen_pick_specific_object"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "place_beverage_to_anothers_position",
+      "scene_families": [
+        "table_task_2_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/place_beverage_to_anothers_position/<instance>/",
+      "run_ids": [
+        "g2op_spatial_place_beverage_to_anothers_position"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "place_block_into_box",
+      "scene_families": [
+        "table_task_2_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/place_block_into_box/<instance>/",
+      "run_ids": [
+        "g2op_manip_place_block_into_box"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "place_object_relative_position",
+      "scene_families": [
+        "table_task_2_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/place_object_relative_position/<instance>/",
+      "run_ids": [
+        "g2op_spatial_place_object_relative_position"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "pour_workpiece",
+      "scene_families": [
+        "laboratory_06_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/pour_workpiece/<instance>/",
+      "run_ids": [
+        "g2op_manip_pour_workpiece"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "scoop_popcorn",
+      "scene_families": [
+        "popcorn_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/scoop_popcorn/<instance>/",
+      "run_ids": [
+        "g2op_manip_scoop_popcorn"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "sort_cubes_by_size",
+      "scene_families": [
+        "table_task_2_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/sort_cubes_by_size/<instance>/",
+      "run_ids": [
+        "g2op_spatial_sort_cubes_by_size"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "sort_number",
+      "scene_families": [
+        "table_task_2_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/sort_number/<instance>/",
+      "run_ids": [
+        "g2op_spatial_sort_number"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "sorting_packages",
+      "scene_families": [
+        "warehouse_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/sorting_packages/<instance>/",
+      "run_ids": [
+        "g2op_manip_sorting_packages"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "sorting_packages_continuous",
+      "scene_families": [
+        "warehouse_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/sorting_packages_continuous/<instance>/",
+      "run_ids": [
+        "g2op_manip_sorting_packages_continuous"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "stack_bowls",
+      "scene_families": [
+        "table_task_2_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/stack_bowls/<instance>/",
+      "run_ids": [
+        "g2op_spatial_stack_bowls"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "stack_three_building_blocks",
+      "scene_families": [
+        "table_task_2_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/stack_three_building_blocks/<instance>/",
+      "run_ids": [
+        "g2op_spatial_stack_three_building_blocks"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "stock_and_straighten_shelf",
+      "scene_families": [
+        "market_00_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/stock_and_straighten_shelf/<instance>/",
+      "run_ids": [
+        "g2op_manip_stock_and_straighten_shelf"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "straighten_object",
+      "scene_families": [
+        "table_task_0_g2_op",
+        "table_task_0_g2_op_backgen",
+        "table_task_0_g2_op_camposgen",
+        "table_task_0_g2_op_camqualgen",
+        "table_task_0_g2_op_instructgen",
+        "table_task_0_g2_op_posegen"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28",
+        "29",
+        "3",
+        "30",
+        "31",
+        "32",
+        "33",
+        "34",
+        "35",
+        "36",
+        "37",
+        "38",
+        "39",
+        "4",
+        "40",
+        "41",
+        "42",
+        "43",
+        "44",
+        "45",
+        "46",
+        "47",
+        "48",
+        "49",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/straighten_object/<instance>/",
+      "run_ids": [
+        "g2op_if_straighten_object",
+        "g2op_robust_backgen_straighten_object",
+        "g2op_robust_camposgen_straighten_object",
+        "g2op_robust_camqualgen_straighten_object",
+        "g2op_robust_instructgen_straighten_object",
+        "g2op_robust_posegen_straighten_object"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "robot": "g2_op",
+      "subtask": "take_wrong_item_shelf",
+      "scene_families": [
+        "market_01_g2_op"
+      ],
+      "source_instances": [
+        "0",
+        "1",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "source_definition": "benchmark/config/llm_task/take_wrong_item_shelf/<instance>/",
+      "run_ids": [
+        "g2op_manip_take_wrong_item_shelf"
+      ],
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    }
+  ],
+  "runs": [
+    {
+      "id": "g1op_s2r_bimanual_chip_handover",
+      "source_config": "config/g1op_s2r_bimanual_chip_handover.yaml",
+      "source_config_sha256": "28a445aa6438c53f263f6c630c39804ac3b56e3c9a823d20e84086a6674c4d5e",
+      "family": "s2r",
+      "robustness_variant": null,
+      "robot": "g1_op",
+      "scene_family": "table_task_g1_op",
+      "subtask": "bimanual_chip_handover",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_g1_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g1op_s2r_grasp_targets",
+      "source_config": "config/g1op_s2r_grasp_targets.yaml",
+      "source_config_sha256": "1b2bc73dbb65816df34498c3c6335780619e703e4fad170bb2ce50980632db82",
+      "family": "s2r",
+      "robustness_variant": null,
+      "robot": "g1_op",
+      "scene_family": "table_task_g1_op",
+      "subtask": "pick_specific_object",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_g1_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g1op_s2r_organize_items",
+      "source_config": "config/g1op_s2r_organize_items.yaml",
+      "source_config_sha256": "70692000959f98e88b5ac9eadfb0acc6d71cce68571df96bf26f31136382234b",
+      "family": "s2r",
+      "robustness_variant": null,
+      "robot": "g1_op",
+      "scene_family": "table_task_g1_op",
+      "subtask": "place_object_into_box_color",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_g1_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g1op_s2r_pack_in_supermarket",
+      "source_config": "config/g1op_s2r_pack_in_supermarket.yaml",
+      "source_config_sha256": "300502dda52ae8d76ca42fb03c47169b2a95e62d21dfc1ec896e1ac79752c785",
+      "family": "s2r",
+      "robustness_variant": null,
+      "robot": "g1_op",
+      "scene_family": "table_task_g1_op",
+      "subtask": "pack_in_supermarket",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_g1_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g1op_s2r_place_block_into_drawer",
+      "source_config": "config/g1op_s2r_place_block_into_drawer.yaml",
+      "source_config_sha256": "e127f3e3f8bc64839b3a58a7219d4f74016dfbdda0c9c5d820444f44de46ca58",
+      "family": "s2r",
+      "robustness_variant": null,
+      "robot": "g1_op",
+      "scene_family": "drawer_task_g1_op",
+      "subtask": "place_block_into_drawer",
+      "evaluation_config": "benchmark/config/eval_tasks/drawer_task_g1_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g1op_s2r_select_color",
+      "source_config": "config/g1op_s2r_select_color.yaml",
+      "source_config_sha256": "7483388f990e9529192384329f8390f5bae6fd31654f432bfb0346b612235e17",
+      "family": "s2r",
+      "robustness_variant": null,
+      "robot": "g1_op",
+      "scene_family": "table_task_g1_op",
+      "subtask": "pick_block_color",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_g1_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g1op_s2r_size_recognize",
+      "source_config": "config/g1op_s2r_size_recognize.yaml",
+      "source_config_sha256": "62ed62b5baeed71c8b2913bf6ebf3461159ca724982c7613a87740124d4322b1",
+      "family": "s2r",
+      "robustness_variant": null,
+      "robot": "g1_op",
+      "scene_family": "table_task_g1_op",
+      "subtask": "pick_block_size",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_g1_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g1op_s2r_sort_fruit",
+      "source_config": "config/g1op_s2r_sort_fruit.yaml",
+      "source_config_sha256": "6a67cc2f8d7a9352568d8efbcb12ba40665d2a6585be75e50aa2c670dcfb8d78",
+      "family": "s2r",
+      "robustness_variant": null,
+      "robot": "g1_op",
+      "scene_family": "table_task_g1_op",
+      "subtask": "sort_fruit",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_g1_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_if_pick_billiards_color",
+      "source_config": "config/g2op_if_pick_billiards_color.yaml",
+      "source_config_sha256": "b078733dc06649998b68866187c1555a33a4193772a0c106216c76c6e7bf5903",
+      "family": "if",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op",
+      "subtask": "pick_billiards_color",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_if_pick_block_color",
+      "source_config": "config/g2op_if_pick_block_color.yaml",
+      "source_config_sha256": "dc79e01505e2275d24633a5db6499388db5068a9b2f06bcd08b704ed2e020b67",
+      "family": "if",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op",
+      "subtask": "pick_block_color",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_if_pick_block_number",
+      "source_config": "config/g2op_if_pick_block_number.yaml",
+      "source_config_sha256": "587bc19949042cd34a522c77f240502fc9b2d014bd3575d879f84aa427853d6a",
+      "family": "if",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op",
+      "subtask": "pick_block_number",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_if_pick_block_shape",
+      "source_config": "config/g2op_if_pick_block_shape.yaml",
+      "source_config_sha256": "4aa6205f69bc50d08446e769f3c5efd9edfd35de4987edb5858570f8f81e3e61",
+      "family": "if",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op",
+      "subtask": "pick_block_shape",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_if_pick_block_size",
+      "source_config": "config/g2op_if_pick_block_size.yaml",
+      "source_config_sha256": "4d12e6e4df98d08db95ca552c3b0af4cdea560a917e31fbfb8a8d144ef2b9252",
+      "family": "if",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op",
+      "subtask": "pick_block_size",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_if_pick_common_sense",
+      "source_config": "config/g2op_if_pick_common_sense.yaml",
+      "source_config_sha256": "00622345fea001fbd2e428314e2a01df8f315f759dfc4fdc10a42868bdcf695d",
+      "family": "if",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op",
+      "subtask": "pick_common_sense",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_if_pick_follow_logic_or",
+      "source_config": "config/g2op_if_pick_follow_logic_or.yaml",
+      "source_config_sha256": "d262cd433e61a8599311b6dfbe860f2b76e770df56685a4ffc0a77f9b6099415",
+      "family": "if",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op",
+      "subtask": "pick_follow_logic_or",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_if_pick_object_type",
+      "source_config": "config/g2op_if_pick_object_type.yaml",
+      "source_config_sha256": "d75ce793f41e7c417a7de06845addc3fa64719faf2fd9f58d2bf70775231a721",
+      "family": "if",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op",
+      "subtask": "pick_object_type",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_if_pick_specific_object",
+      "source_config": "config/g2op_if_pick_specific_object.yaml",
+      "source_config_sha256": "f73af0acc9ef926eb8506b864f69aae0e55ee629dce0ca826acdd4b7abeb739d",
+      "family": "if",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op",
+      "subtask": "pick_specific_object",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_if_straighten_object",
+      "source_config": "config/g2op_if_straighten_object.yaml",
+      "source_config_sha256": "5072b5682b1b2605dfd9bdb7c1b8366a222a004b5a073d5439a191f60dc59c37",
+      "family": "if",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op",
+      "subtask": "straighten_object",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_manip_bimanual_hold_pot",
+      "source_config": "config/g2op_manip_bimanual_hold_pot.yaml",
+      "source_config_sha256": "824da3a5cba719727c670fceae879ac04e97472459ee167f77f9c08c13505717",
+      "family": "manip",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "kitchen_02_g2_op",
+      "subtask": "hold_pot",
+      "evaluation_config": "benchmark/config/eval_tasks/kitchen_02_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_manip_clean_the_desktop",
+      "source_config": "config/g2op_manip_clean_the_desktop.yaml",
+      "source_config_sha256": "7e14d9275ba6dff2ea9ecb145627057a104173a529d6bfe9e8838eb1ed02a0f7",
+      "family": "manip",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "study_room_05_g2_op",
+      "subtask": "clean_the_desktop",
+      "evaluation_config": "benchmark/config/eval_tasks/study_room_05_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_manip_open_door",
+      "source_config": "config/g2op_manip_open_door.yaml",
+      "source_config_sha256": "0da5afa2e8a167be78362404e8e38f7100d2b86e12693a4f3a6ca99875c1dd8a",
+      "family": "manip",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "home_g2_op",
+      "subtask": "open_door",
+      "evaluation_config": "benchmark/config/eval_tasks/home_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_manip_place_block_into_box",
+      "source_config": "config/g2op_manip_place_block_into_box.yaml",
+      "source_config_sha256": "f67bb7e1384870de6943196ae6f06578502564d262ac21861acff0891d8e7859",
+      "family": "manip",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_2_g2_op",
+      "subtask": "place_block_into_box",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_2_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_manip_pour_workpiece",
+      "source_config": "config/g2op_manip_pour_workpiece.yaml",
+      "source_config_sha256": "d479ebbe3f6df374f1b600fefc0ef71a7366944209a9d3474ffed225f98d382e",
+      "family": "manip",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "laboratory_06_g2_op",
+      "subtask": "pour_workpiece",
+      "evaluation_config": "benchmark/config/eval_tasks/laboratory_06_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_manip_scoop_popcorn",
+      "source_config": "config/g2op_manip_scoop_popcorn.yaml",
+      "source_config_sha256": "40112af932cc94a8d31f97b77fb43508b251cc16f1c8c6f82a6c600fd768577f",
+      "family": "manip",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "popcorn_g2_op",
+      "subtask": "scoop_popcorn",
+      "evaluation_config": "benchmark/config/eval_tasks/popcorn_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_manip_sorting_packages",
+      "source_config": "config/g2op_manip_sorting_packages.yaml",
+      "source_config_sha256": "0bebebda01f5d2b42b207fc7e13b26a5fdfbd205c38dd2d85cf5b93f7b2d83f0",
+      "family": "manip",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "warehouse_g2_op",
+      "subtask": "sorting_packages",
+      "evaluation_config": "benchmark/config/eval_tasks/warehouse_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_manip_sorting_packages_continuous",
+      "source_config": "config/g2op_manip_sorting_packages_continuous.yaml",
+      "source_config_sha256": "00175b555c3948d3d1f5bfd826c33955803c2e3bf6cc3aacf6efa1a1af83b80e",
+      "family": "manip",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "warehouse_g2_op",
+      "subtask": "sorting_packages_continuous",
+      "evaluation_config": "benchmark/config/eval_tasks/warehouse_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_manip_stock_and_straighten_shelf",
+      "source_config": "config/g2op_manip_stock_and_straighten_shelf.yaml",
+      "source_config_sha256": "e25b501d30b104659431a3c1d14298ed686f35d926c51717253eff8e7bf1f089",
+      "family": "manip",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "market_00_g2_op",
+      "subtask": "stock_and_straighten_shelf",
+      "evaluation_config": "benchmark/config/eval_tasks/market_00_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_manip_take_wrong_item_shelf",
+      "source_config": "config/g2op_manip_take_wrong_item_shelf.yaml",
+      "source_config_sha256": "1f033772768f1fdda77227025ee42ec8b8af67d566677a86b14b92261a807ef4",
+      "family": "manip",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "market_01_g2_op",
+      "subtask": "take_wrong_item_shelf",
+      "evaluation_config": "benchmark/config/eval_tasks/market_01_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_backgen_pick_billiards_color",
+      "source_config": "config/g2op_robust_backgen_pick_billiards_color.yaml",
+      "source_config_sha256": "b0af328755a27b14c4d859535db1ce63463afff82b63a725640bf21a1001c2ee",
+      "family": "robust_backgen",
+      "robustness_variant": "backgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op_backgen",
+      "subtask": "pick_billiards_color",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op_backgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_backgen_pick_block_color",
+      "source_config": "config/g2op_robust_backgen_pick_block_color.yaml",
+      "source_config_sha256": "90b0ce35722eabca416ff641eb8767e12f8a010e59894ec212aa30504cc52edd",
+      "family": "robust_backgen",
+      "robustness_variant": "backgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op_backgen",
+      "subtask": "pick_block_color",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op_backgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_backgen_pick_block_number",
+      "source_config": "config/g2op_robust_backgen_pick_block_number.yaml",
+      "source_config_sha256": "f9c70d32656af8d3a7d82d456a54e7d3c624547029ce9a87a188dbaff1060919",
+      "family": "robust_backgen",
+      "robustness_variant": "backgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_backgen",
+      "subtask": "pick_block_number",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_backgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_backgen_pick_block_shape",
+      "source_config": "config/g2op_robust_backgen_pick_block_shape.yaml",
+      "source_config_sha256": "6523843b189ba252edd0fe06dcd5a3beb00256603d9b454317d3a66e5efddb13",
+      "family": "robust_backgen",
+      "robustness_variant": "backgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_backgen",
+      "subtask": "pick_block_shape",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_backgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_backgen_pick_block_size",
+      "source_config": "config/g2op_robust_backgen_pick_block_size.yaml",
+      "source_config_sha256": "a9b903f95f4a62ab9716d58eaf5918412bae61d07d598a706a9f0ee75c60f5d7",
+      "family": "robust_backgen",
+      "robustness_variant": "backgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op_backgen",
+      "subtask": "pick_block_size",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op_backgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_backgen_pick_common_sense",
+      "source_config": "config/g2op_robust_backgen_pick_common_sense.yaml",
+      "source_config_sha256": "f0de168471c82740ad5afd7cca613c48e017e4868c3b1e3c63d27560ab53a8f8",
+      "family": "robust_backgen",
+      "robustness_variant": "backgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_backgen",
+      "subtask": "pick_common_sense",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_backgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_backgen_pick_follow_logic_or",
+      "source_config": "config/g2op_robust_backgen_pick_follow_logic_or.yaml",
+      "source_config_sha256": "4a837185749e68e36d7370de4746b00a73f5a3686fd037a7f56a58c647936a9a",
+      "family": "robust_backgen",
+      "robustness_variant": "backgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_backgen",
+      "subtask": "pick_follow_logic_or",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_backgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_backgen_pick_object_type",
+      "source_config": "config/g2op_robust_backgen_pick_object_type.yaml",
+      "source_config_sha256": "10c1b33a2e538ffd52bdd0311da79f8144f791dd388bc36813a1310dcfaf2243",
+      "family": "robust_backgen",
+      "robustness_variant": "backgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_backgen",
+      "subtask": "pick_object_type",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_backgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_backgen_pick_specific_object",
+      "source_config": "config/g2op_robust_backgen_pick_specific_object.yaml",
+      "source_config_sha256": "40b026fc23b6e060494164a5254de6b4c54f7405a0c39ca825c53555ea84919b",
+      "family": "robust_backgen",
+      "robustness_variant": "backgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_backgen",
+      "subtask": "pick_specific_object",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_backgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_backgen_straighten_object",
+      "source_config": "config/g2op_robust_backgen_straighten_object.yaml",
+      "source_config_sha256": "cb18a8225e8f72708681b67028243a04d2d25fe760d104f0c163d67a1fdfb924",
+      "family": "robust_backgen",
+      "robustness_variant": "backgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_backgen",
+      "subtask": "straighten_object",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_backgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camposgen_pick_billiards_color",
+      "source_config": "config/g2op_robust_camposgen_pick_billiards_color.yaml",
+      "source_config_sha256": "d66e997edc3c5e6e68b1a679c27a1111794523982f876e3ebda3cdcce9bf1549",
+      "family": "robust_camposgen",
+      "robustness_variant": "camposgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op_camposgen",
+      "subtask": "pick_billiards_color",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op_camposgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camposgen_pick_block_color",
+      "source_config": "config/g2op_robust_camposgen_pick_block_color.yaml",
+      "source_config_sha256": "76dbf9f97f7534eebb5bab660de058d62a890ccdcaa627e72a9abaef1622c1c9",
+      "family": "robust_camposgen",
+      "robustness_variant": "camposgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op_camposgen",
+      "subtask": "pick_block_color",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op_camposgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camposgen_pick_block_number",
+      "source_config": "config/g2op_robust_camposgen_pick_block_number.yaml",
+      "source_config_sha256": "f94e6ab5579012288bae5d3e144923e4e5afce012336a08152af53e741447f1e",
+      "family": "robust_camposgen",
+      "robustness_variant": "camposgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_camposgen",
+      "subtask": "pick_block_number",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_camposgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camposgen_pick_block_shape",
+      "source_config": "config/g2op_robust_camposgen_pick_block_shape.yaml",
+      "source_config_sha256": "ba91198ce5e84003ade564171a6ca982728fe26c5e79690542aeba4a32a3418e",
+      "family": "robust_camposgen",
+      "robustness_variant": "camposgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_camposgen",
+      "subtask": "pick_block_shape",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_camposgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camposgen_pick_block_size",
+      "source_config": "config/g2op_robust_camposgen_pick_block_size.yaml",
+      "source_config_sha256": "d451af984eb190c921dd3448f3bcc05bb4a2608fca07e101d1f93ee654c149c8",
+      "family": "robust_camposgen",
+      "robustness_variant": "camposgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op_camposgen",
+      "subtask": "pick_block_size",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op_camposgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camposgen_pick_common_sense",
+      "source_config": "config/g2op_robust_camposgen_pick_common_sense.yaml",
+      "source_config_sha256": "cf57400595ec8ceba14f954c349c1b9392dbca79dff6c4a204fa53542ab12510",
+      "family": "robust_camposgen",
+      "robustness_variant": "camposgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_camposgen",
+      "subtask": "pick_common_sense",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_camposgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camposgen_pick_follow_logic_or",
+      "source_config": "config/g2op_robust_camposgen_pick_follow_logic_or.yaml",
+      "source_config_sha256": "8ac746f466b236e29f2a6f08dd0a50fcb898b39359e61bd7fa6ba26e1a96d1fa",
+      "family": "robust_camposgen",
+      "robustness_variant": "camposgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_camposgen",
+      "subtask": "pick_follow_logic_or",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_camposgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camposgen_pick_object_type",
+      "source_config": "config/g2op_robust_camposgen_pick_object_type.yaml",
+      "source_config_sha256": "75d27256d2ed63facaccf2e4d142fb1c9acee4032087c02f4ac59afe1516f18d",
+      "family": "robust_camposgen",
+      "robustness_variant": "camposgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_camposgen",
+      "subtask": "pick_object_type",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_camposgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camposgen_pick_specific_object",
+      "source_config": "config/g2op_robust_camposgen_pick_specific_object.yaml",
+      "source_config_sha256": "c4cb2263466eb2cb60c0a94f85fe12563ecda57512dbaf54db1b9befab98e121",
+      "family": "robust_camposgen",
+      "robustness_variant": "camposgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_camposgen",
+      "subtask": "pick_specific_object",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_camposgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camposgen_straighten_object",
+      "source_config": "config/g2op_robust_camposgen_straighten_object.yaml",
+      "source_config_sha256": "1923e57797d27d1ede0a2d7b2cdb5944fd0fa5463809a0a7110ab2d688f9686e",
+      "family": "robust_camposgen",
+      "robustness_variant": "camposgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_camposgen",
+      "subtask": "straighten_object",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_camposgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camqualgen_pick_billiards_color",
+      "source_config": "config/g2op_robust_camqualgen_pick_billiards_color.yaml",
+      "source_config_sha256": "0205c14ba63622a8af4adec22bf9587456de62973c04cffdb49180dc826bed5a",
+      "family": "robust_camqualgen",
+      "robustness_variant": "camqualgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op_camqualgen",
+      "subtask": "pick_billiards_color",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op_camqualgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camqualgen_pick_block_color",
+      "source_config": "config/g2op_robust_camqualgen_pick_block_color.yaml",
+      "source_config_sha256": "427fb41a88f82b84e2df08b299310114dbcb360845f9f91c61f2b187e0262ea9",
+      "family": "robust_camqualgen",
+      "robustness_variant": "camqualgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op_camqualgen",
+      "subtask": "pick_block_color",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op_camqualgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camqualgen_pick_block_number",
+      "source_config": "config/g2op_robust_camqualgen_pick_block_number.yaml",
+      "source_config_sha256": "a9b9caef8a0bbcb7a33951e3e6997ce710b3c25920c8abc4f69363fafe044c2d",
+      "family": "robust_camqualgen",
+      "robustness_variant": "camqualgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_camqualgen",
+      "subtask": "pick_block_number",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_camqualgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camqualgen_pick_block_shape",
+      "source_config": "config/g2op_robust_camqualgen_pick_block_shape.yaml",
+      "source_config_sha256": "3adbb4d488208304578487dc24624eafa0572814810b4fb3dae582bc6d4ea2f2",
+      "family": "robust_camqualgen",
+      "robustness_variant": "camqualgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_camqualgen",
+      "subtask": "pick_block_shape",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_camqualgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camqualgen_pick_block_size",
+      "source_config": "config/g2op_robust_camqualgen_pick_block_size.yaml",
+      "source_config_sha256": "376f11af8688b1be79b3b518f7c8807b7006e61ddd75eb8d4d02d5a8c43164ce",
+      "family": "robust_camqualgen",
+      "robustness_variant": "camqualgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op_camqualgen",
+      "subtask": "pick_block_size",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op_camqualgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camqualgen_pick_common_sense",
+      "source_config": "config/g2op_robust_camqualgen_pick_common_sense.yaml",
+      "source_config_sha256": "5ced2985423929a30441ce2f691ad5ae77425ef061d5881d489a6b15ae0e28dc",
+      "family": "robust_camqualgen",
+      "robustness_variant": "camqualgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_camqualgen",
+      "subtask": "pick_common_sense",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_camqualgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camqualgen_pick_follow_logic_or",
+      "source_config": "config/g2op_robust_camqualgen_pick_follow_logic_or.yaml",
+      "source_config_sha256": "1f703a20ade7b1959002cc16aab68e33d4fde284c7a3e45936b9ad3e80869084",
+      "family": "robust_camqualgen",
+      "robustness_variant": "camqualgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_camqualgen",
+      "subtask": "pick_follow_logic_or",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_camqualgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camqualgen_pick_object_type",
+      "source_config": "config/g2op_robust_camqualgen_pick_object_type.yaml",
+      "source_config_sha256": "bee51e528a18b892e406859cb6f47b48339a57651b6d520fd6cce6f4fc4097cf",
+      "family": "robust_camqualgen",
+      "robustness_variant": "camqualgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_camqualgen",
+      "subtask": "pick_object_type",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_camqualgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camqualgen_pick_specific_object",
+      "source_config": "config/g2op_robust_camqualgen_pick_specific_object.yaml",
+      "source_config_sha256": "a6d73fdee689f78ff09e5e28bf93f208131938481ba774cae8938adef21dff74",
+      "family": "robust_camqualgen",
+      "robustness_variant": "camqualgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_camqualgen",
+      "subtask": "pick_specific_object",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_camqualgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_camqualgen_straighten_object",
+      "source_config": "config/g2op_robust_camqualgen_straighten_object.yaml",
+      "source_config_sha256": "d5bd87f92d80347cf595f28ccc062219b759b8f6383d43e6049aa42edbc929f7",
+      "family": "robust_camqualgen",
+      "robustness_variant": "camqualgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_camqualgen",
+      "subtask": "straighten_object",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_camqualgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_instructgen_pick_billiards_color",
+      "source_config": "config/g2op_robust_instructgen_pick_billiards_color.yaml",
+      "source_config_sha256": "523a17be765cff118b7e4951b2e00dcfd1bad4ab7cdd690a5519a1c9a64b61a1",
+      "family": "robust_instructgen",
+      "robustness_variant": "instructgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op_instructgen",
+      "subtask": "pick_billiards_color",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op_instructgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_instructgen_pick_block_color",
+      "source_config": "config/g2op_robust_instructgen_pick_block_color.yaml",
+      "source_config_sha256": "3b385925187b70ead8fe09ff4b8e5fe253f02b0981e64cc192471d17a04f4935",
+      "family": "robust_instructgen",
+      "robustness_variant": "instructgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op_instructgen",
+      "subtask": "pick_block_color",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op_instructgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_instructgen_pick_block_number",
+      "source_config": "config/g2op_robust_instructgen_pick_block_number.yaml",
+      "source_config_sha256": "f9c12ef0c541af721b0ab18cc090dd9c86a6a28a4658d9268ebd367949616e2b",
+      "family": "robust_instructgen",
+      "robustness_variant": "instructgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_instructgen",
+      "subtask": "pick_block_number",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_instructgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_instructgen_pick_block_shape",
+      "source_config": "config/g2op_robust_instructgen_pick_block_shape.yaml",
+      "source_config_sha256": "07a687cd0cb045a43b50a501faa26198a9c66795e7e2e57ef6f0444f58b40c4e",
+      "family": "robust_instructgen",
+      "robustness_variant": "instructgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_instructgen",
+      "subtask": "pick_block_shape",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_instructgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_instructgen_pick_block_size",
+      "source_config": "config/g2op_robust_instructgen_pick_block_size.yaml",
+      "source_config_sha256": "451c4269585f09955fb5bc02e1ab640b913dc363545230e58cdbeeb4e2e28386",
+      "family": "robust_instructgen",
+      "robustness_variant": "instructgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op_instructgen",
+      "subtask": "pick_block_size",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op_instructgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_instructgen_pick_common_sense",
+      "source_config": "config/g2op_robust_instructgen_pick_common_sense.yaml",
+      "source_config_sha256": "93c870601d08e19f5cc242918a295af5092c9f1da7fd206604c6316f559f1ce4",
+      "family": "robust_instructgen",
+      "robustness_variant": "instructgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_instructgen",
+      "subtask": "pick_common_sense",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_instructgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_instructgen_pick_follow_logic_or",
+      "source_config": "config/g2op_robust_instructgen_pick_follow_logic_or.yaml",
+      "source_config_sha256": "980375a34a036f4407247a01333d536edeb2c3878754534a4b6f71e3396f7fc7",
+      "family": "robust_instructgen",
+      "robustness_variant": "instructgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_instructgen",
+      "subtask": "pick_follow_logic_or",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_instructgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_instructgen_pick_object_type",
+      "source_config": "config/g2op_robust_instructgen_pick_object_type.yaml",
+      "source_config_sha256": "b5a8d7d6aeb7b203c8ebefe707c5e664372a9a8a505dfc3dd46168686c5be41e",
+      "family": "robust_instructgen",
+      "robustness_variant": "instructgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_instructgen",
+      "subtask": "pick_object_type",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_instructgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_instructgen_pick_specific_object",
+      "source_config": "config/g2op_robust_instructgen_pick_specific_object.yaml",
+      "source_config_sha256": "e8cf86425d6c4390ab1a4b4f4f791b8b2893ed71e756c258fc701125ec8f5973",
+      "family": "robust_instructgen",
+      "robustness_variant": "instructgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_instructgen",
+      "subtask": "pick_specific_object",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_instructgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_instructgen_straighten_object",
+      "source_config": "config/g2op_robust_instructgen_straighten_object.yaml",
+      "source_config_sha256": "cfc13b169f96d52e259f2f560bd290f5810cf13cde04b37e6e74bf4d0c398f70",
+      "family": "robust_instructgen",
+      "robustness_variant": "instructgen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_instructgen",
+      "subtask": "straighten_object",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_instructgen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_posegen_pick_billiards_color",
+      "source_config": "config/g2op_robust_posegen_pick_billiards_color.yaml",
+      "source_config_sha256": "d9bf6d8c6ff01613633909ac9cfbe3845fdc2daab39cbb768c4473ad263cc27f",
+      "family": "robust_posegen",
+      "robustness_variant": "posegen",
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op_posegen",
+      "subtask": "pick_billiards_color",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op_posegen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_posegen_pick_block_color",
+      "source_config": "config/g2op_robust_posegen_pick_block_color.yaml",
+      "source_config_sha256": "48aed60ff057caea4c13b37b4a7af2382ad3cc3807e70a6ed1a29a9c410c339b",
+      "family": "robust_posegen",
+      "robustness_variant": "posegen",
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op_posegen",
+      "subtask": "pick_block_color",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op_posegen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_posegen_pick_block_number",
+      "source_config": "config/g2op_robust_posegen_pick_block_number.yaml",
+      "source_config_sha256": "4322bd4e81d0f359f2636cfabed2d6c0e1b865c9503bb6b27611d0a11b0121af",
+      "family": "robust_posegen",
+      "robustness_variant": "posegen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_posegen",
+      "subtask": "pick_block_number",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_posegen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_posegen_pick_block_shape",
+      "source_config": "config/g2op_robust_posegen_pick_block_shape.yaml",
+      "source_config_sha256": "eaf2609e23914936cfbc8c9086b5cc8aba3f137a7e66d54261f3edecf7cc7acb",
+      "family": "robust_posegen",
+      "robustness_variant": "posegen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_posegen",
+      "subtask": "pick_block_shape",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_posegen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_posegen_pick_block_size",
+      "source_config": "config/g2op_robust_posegen_pick_block_size.yaml",
+      "source_config_sha256": "546394127f0a54a198d7fb55430a8889b8759c8b55d2b10e07d0f6ea86b0206d",
+      "family": "robust_posegen",
+      "robustness_variant": "posegen",
+      "robot": "g2_op",
+      "scene_family": "table_task_1_g2_op_posegen",
+      "subtask": "pick_block_size",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_1_g2_op_posegen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_posegen_pick_common_sense",
+      "source_config": "config/g2op_robust_posegen_pick_common_sense.yaml",
+      "source_config_sha256": "95c872ab17cd71e10dc61f784819e200b701382a2bb7ede28cc4f7a3d3b4da09",
+      "family": "robust_posegen",
+      "robustness_variant": "posegen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_posegen",
+      "subtask": "pick_common_sense",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_posegen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_posegen_pick_follow_logic_or",
+      "source_config": "config/g2op_robust_posegen_pick_follow_logic_or.yaml",
+      "source_config_sha256": "6ec1a36e103439122a2dd00568b72a030812834c20ad352ed7fa017dc3ece69c",
+      "family": "robust_posegen",
+      "robustness_variant": "posegen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_posegen",
+      "subtask": "pick_follow_logic_or",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_posegen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_posegen_pick_object_type",
+      "source_config": "config/g2op_robust_posegen_pick_object_type.yaml",
+      "source_config_sha256": "9e47c2420928f0f8d78104a0b4a808bf8726b56d090610a37282fcb7fa6a6a05",
+      "family": "robust_posegen",
+      "robustness_variant": "posegen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_posegen",
+      "subtask": "pick_object_type",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_posegen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_posegen_pick_specific_object",
+      "source_config": "config/g2op_robust_posegen_pick_specific_object.yaml",
+      "source_config_sha256": "831efa3db5356448d585808e471acf346aa616f0fc8921e1de4b08518d75692a",
+      "family": "robust_posegen",
+      "robustness_variant": "posegen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_posegen",
+      "subtask": "pick_specific_object",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_posegen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_robust_posegen_straighten_object",
+      "source_config": "config/g2op_robust_posegen_straighten_object.yaml",
+      "source_config_sha256": "bd2ab0602a087f1cacfa6e62d8a5790ff5c82d68b4851417b27e062660998f81",
+      "family": "robust_posegen",
+      "robustness_variant": "posegen",
+      "robot": "g2_op",
+      "scene_family": "table_task_0_g2_op_posegen",
+      "subtask": "straighten_object",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_0_g2_op_posegen.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_spatial_pick_object_absolute_position",
+      "source_config": "config/g2op_spatial_pick_object_absolute_position.yaml",
+      "source_config_sha256": "5a8e142b745621fdf28b9ef1a2074c962b7a24fb3858b1f8f0a8b952974992f1",
+      "family": "spatial",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_2_g2_op",
+      "subtask": "pick_object_absolute_position",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_2_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_spatial_pick_object_relative_position",
+      "source_config": "config/g2op_spatial_pick_object_relative_position.yaml",
+      "source_config_sha256": "64dd35b7037f87b27d7d4316d427411eabe0128e5592435cdff6a7f5d519a76c",
+      "family": "spatial",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_2_g2_op",
+      "subtask": "pick_object_relative_position",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_2_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_spatial_place_beverage_to_anothers_position",
+      "source_config": "config/g2op_spatial_place_beverage_to_anothers_position.yaml",
+      "source_config_sha256": "26761e32ea66441e3a7ae7cd9ecba89772c77aeed82b93fee099da964413d43c",
+      "family": "spatial",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_2_g2_op",
+      "subtask": "place_beverage_to_anothers_position",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_2_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_spatial_place_object_relative_position",
+      "source_config": "config/g2op_spatial_place_object_relative_position.yaml",
+      "source_config_sha256": "6a02d1d11052e30cd4779df52543916a5d575b3b17d897859bd3b816e1db9b90",
+      "family": "spatial",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_2_g2_op",
+      "subtask": "place_object_relative_position",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_2_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_spatial_sort_cubes_by_size",
+      "source_config": "config/g2op_spatial_sort_cubes_by_size.yaml",
+      "source_config_sha256": "7a1d2d75358e112eab0439a2e1f207d7a2d1c4f6c0c36f3dacc3c7901cdae804",
+      "family": "spatial",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_2_g2_op",
+      "subtask": "sort_cubes_by_size",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_2_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_spatial_sort_number",
+      "source_config": "config/g2op_spatial_sort_number.yaml",
+      "source_config_sha256": "a75df1defbad2f8521c14e4c01b900af37d691a4da646cc8c1a5b3caa68c31a6",
+      "family": "spatial",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_2_g2_op",
+      "subtask": "sort_number",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_2_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_spatial_stack_bowls",
+      "source_config": "config/g2op_spatial_stack_bowls.yaml",
+      "source_config_sha256": "3c7763dd85f70ac28924b5331bdccf832ea41c1e60c66fec3b46d77810cc8493",
+      "family": "spatial",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_2_g2_op",
+      "subtask": "stack_bowls",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_2_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    },
+    {
+      "id": "g2op_spatial_stack_three_building_blocks",
+      "source_config": "config/g2op_spatial_stack_three_building_blocks.yaml",
+      "source_config_sha256": "be9d9609b6ac9fc9fd4a1e5c939d77b80192dd8dfdccb5d77cb1e192bdcf2a23",
+      "family": "spatial",
+      "robustness_variant": null,
+      "robot": "g2_op",
+      "scene_family": "table_task_2_g2_op",
+      "subtask": "stack_three_building_blocks",
+      "evaluation_config": "benchmark/config/eval_tasks/table_task_2_g2_op.json",
+      "roboverse_task": "icl.geniesim_benchmark",
+      "migration_status": "implemented_unverified",
+      "backend_checks": {
+        "mujoco": "not_run",
+        "genesis": "not_run",
+        "newton": "not_run"
+      },
+      "behavioral_parity": "not_verified"
+    }
+  ]
+}

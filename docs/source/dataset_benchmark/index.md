@@ -15,6 +15,10 @@ This section documents the RoboVerse task suite, asset library, and evaluation p
 - [Task Overview](tasks/overview.md) - Browse available tasks by category
 - [Benchmark Usage](benchmark/usage.md) - Run standardized evaluations
 - [Benchmark Results](benchmark/results.md) - Compare with state-of-the-art
+- [Reference-conditioned ICL prototype](benchmark/icl.md) - Collect and evaluate one-demonstration manipulation tasks
+- [ICL live task inspection](benchmark/icl_inspector.md) - Interact with a registered task through Viser and replay through Rerun
+- [Genie Sim G1 pack checker case](benchmark/icl_geniesim_pack_task.md) - Source-grounded semantic test and provenance limits
+- [ICL verification queue](benchmark/icl_verification_queue.md) - Lease, resume, and audit source-task verification jobs
 
 ### For Developers
 

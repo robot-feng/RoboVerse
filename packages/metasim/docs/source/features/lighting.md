@@ -17,7 +17,19 @@ switched off (the Franka MJCF ships a spot light at 2 m that would otherwise add
 ScenarioCfg(lights=[...], sim_params=SimParamCfg(mujoco_use_scenario_lights=True), simulator="mujoco")
 ```
 
-Other backends (SAPIEN, Genesis, PyBullet, Newton) do not consume `scenario.lights` yet.
+Genesis can translate distant and uniform dome lights when its installed visualization API supports
+those fields. Other unsupported light types retain the renderer defaults.
+
+**Opt-in on Newton camera sensors:** set `SimParamCfg(newton_use_scenario_lights=True)` to use the
+direction of the first `DistantLightCfg` instead of Newton's fixed default direction. Newton 1.7's
+camera sensor retains its own light intensity, color and ambient illumination; additional distant
+lights are ignored with a warning. Older Newton camera APIs fall back to their default direction with
+a warning. This setting does not affect the interactive viewer, and it is off by default.
+
+Newton 1.7 camera sensors can also set a flat background with
+`SimParamCfg(newton_camera_background_rgb=(23, 36, 53))`. The tuple uses 8-bit RGB channels;
+`None` keeps the sensor default. This changes only the color of rays that miss scene geometry,
+not lighting, depth, or segmentation. Older Newton camera APIs ignore it with a warning.
 
 ## Translation rules (`metasim/sim/mujoco/lights.py`)
 

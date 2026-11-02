@@ -5,6 +5,8 @@ from __future__ import annotations
 import math
 from typing import Literal
 
+import numpy as np
+
 from metasim.utils.configclass import configclass
 
 
@@ -72,6 +74,32 @@ class PinholeCameraCfg(BaseCameraCfg):
     """Horizontal aperture (in cm). Defaults to 20.955 cm."""
     clipping_range: tuple[float, float] = (0.05, 1e5)
     """Near and far clipping distances (in m). Defaults to (0.05, 1e5)."""
+    opencv_distortion: tuple[float, ...] | None = None
+    """OpenCV pinhole coefficients in OpenCV order.
+
+    Accepted lengths are 4, 5, 8, 12, or 14. A backend may render an ideal
+    pinhole and apply these coefficients in the shared observation pipeline.
+    """
+    distortion_source: str | None = None
+    """Provenance label for ``opencv_distortion`` when present."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        if self.intrinsic is not None:
+            matrix = np.asarray(self.intrinsic, dtype=np.float64)
+            if matrix.shape != (3, 3) or not np.isfinite(matrix).all():
+                raise ValueError("intrinsic must be a finite 3x3 matrix")
+            if matrix[0, 0] <= 0 or matrix[1, 1] <= 0 or not np.allclose(matrix[2], [0.0, 0.0, 1.0]):
+                raise ValueError("intrinsic must have positive focal lengths and last row [0, 0, 1]")
+        if self.opencv_distortion is not None:
+            coefficients = np.asarray(self.opencv_distortion, dtype=np.float64)
+            if coefficients.ndim != 1 or len(coefficients) not in {4, 5, 8, 12, 14}:
+                raise ValueError("opencv_distortion must contain 4, 5, 8, 12, or 14 coefficients")
+            if not np.isfinite(coefficients).all():
+                raise ValueError("opencv_distortion coefficients must be finite")
+            self.opencv_distortion = tuple(float(value) for value in coefficients)
+        if self.distortion_source is not None and not self.distortion_source.strip():
+            raise ValueError("distortion_source must be nonempty when supplied")
 
     @property
     def vertical_aperture(self) -> float:
@@ -91,6 +119,8 @@ class PinholeCameraCfg(BaseCameraCfg):
     @property
     def intrinsics(self) -> list[list[float]]:
         """Intrinsics matrix of the camera. Type is 3x3 nested list of floats."""
+        if self.intrinsic is not None:
+            return self.intrinsic
         fx = self.width * self.focal_length / self.horizontal_aperture
         fy = self.height * self.focal_length / self.vertical_aperture
         cx = self.width * 0.5
@@ -100,6 +130,72 @@ class PinholeCameraCfg(BaseCameraCfg):
             [0.0, fy, cy],
             [0.0, 0.0, 1.0],
         ]
+
+
+@configclass
+class FisheyeCameraCfg(BaseCameraCfg):
+    """Calibrated central fisheye camera, in source-image pixel coordinates.
+
+    ``opencv_fisheye`` uses the four OpenCV angular distortion coefficients
+    and separate pixel focal lengths. ``ftheta`` uses five coefficients for
+    ``radius = k0 + k1*theta + ... + k4*theta**4`` in calibration pixels.
+    ``max_fov_rad`` is the total valid field of view, not a half-angle.
+    Unsupported backends must fail explicitly rather than render a pinhole.
+    """
+
+    projection_model: Literal["opencv_fisheye", "ftheta"] = "opencv_fisheye"
+    clipping_range: tuple[float, float] = (0.05, 1e5)
+    calibration_size: tuple[int, int] = (0, 0)
+    """Width and height of the calibration image in pixels."""
+    optical_center: tuple[float, float] = (0.0, 0.0)
+    """Principal point ``(cx, cy)`` in calibration-image pixels."""
+    focal_length_px: tuple[float, float] | None = None
+    """OpenCV ``(fx, fy)`` in calibration pixels; unused for F-theta."""
+    coefficients: tuple[float, ...] = ()
+    """Four OpenCV angular coefficients or five F-theta radius coefficients."""
+    max_fov_rad: float | None = None
+    """Total calibrated angular domain in radians, at most 2π."""
+    calibration_source: str = "unspecified"
+    """Provenance label, such as a source asset or a physical calibration."""
+    calibration_source_sha256: str | None = None
+    """SHA-256 of the calibration source when it is available."""
+    max_fov_source: Literal["specified", "inferred_monotonic"] = "specified"
+    """Whether the angular limit was supplied or conservatively inferred."""
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        if self.projection_model not in {"opencv_fisheye", "ftheta"}:
+            raise ValueError("Unsupported fisheye projection model")
+        if (
+            len(self.calibration_size) != 2
+            or any(isinstance(value, bool) or not isinstance(value, int) or value <= 0 for value in self.calibration_size)
+        ):
+            raise ValueError("calibration_size must contain two positive integer pixel sizes")
+        if len(self.optical_center) != 2 or not all(math.isfinite(float(value)) for value in self.optical_center):
+            raise ValueError("optical_center must contain two finite pixel coordinates")
+        if self.projection_model == "opencv_fisheye":
+            if self.focal_length_px is None or len(self.focal_length_px) != 2 or not all(
+                math.isfinite(float(value)) and float(value) > 0 for value in self.focal_length_px
+            ):
+                raise ValueError("OpenCV fisheye requires two positive finite focal lengths")
+            expected = 4
+        else:
+            if self.focal_length_px is not None:
+                raise ValueError("F-theta does not use focal_length_px")
+            expected = 5
+        if len(self.coefficients) != expected or not all(math.isfinite(float(value)) for value in self.coefficients):
+            raise ValueError(f"{self.projection_model} requires {expected} finite coefficients")
+        if self.max_fov_rad is None or not math.isfinite(float(self.max_fov_rad)) or not 0 < self.max_fov_rad <= 2 * math.pi:
+            raise ValueError("max_fov_rad must be finite and in (0, 2π]")
+        if not isinstance(self.calibration_source, str) or not self.calibration_source.strip():
+            raise ValueError("calibration_source must be a nonempty string")
+        if self.calibration_source_sha256 is not None and (
+            len(self.calibration_source_sha256) != 64
+            or any(char not in "0123456789abcdef" for char in self.calibration_source_sha256)
+        ):
+            raise ValueError("calibration_source_sha256 must be a lowercase SHA-256 digest")
+        if self.max_fov_source not in {"specified", "inferred_monotonic"}:
+            raise ValueError("max_fov_source must be specified or inferred_monotonic")
 
 
 REALSENSE_CAMERA = PinholeCameraCfg(

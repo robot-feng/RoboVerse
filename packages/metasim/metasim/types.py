@@ -123,6 +123,7 @@ def _maybe_num_envs_from_camera_state(state: CameraState) -> int | None:
         state.pos,
         state.quat_world,
         state.intrinsics,
+        state.valid_mask,
     ):
         if isinstance(tensor, torch.Tensor):
             return tensor.shape[0]
@@ -271,6 +272,8 @@ class CameraState:
     """
     intrinsics: CameraIntrinsicsTensor | None = None
     """Intrinsics matrix of the camera. Shape is (num_envs, 3, 3)."""
+    valid_mask: torch.Tensor | None = None
+    """Boolean projection-validity mask of shape (num_envs, H, W), when provided by the backend."""
 
     def __post_init__(self) -> None:
         num_envs = _maybe_num_envs_from_camera_state(self)
@@ -312,6 +315,17 @@ class CameraState:
                 raise ValueError(f"intrinsics must have shape (num_envs, 3, 3), got {tuple(intrinsics.shape)}")
             num_envs = intrinsics.shape[0] if num_envs is None else num_envs
             _validate_num_envs("intrinsics", intrinsics, num_envs)
+
+        if self.valid_mask is not None:
+            mask = _validate_rank("valid_mask", self.valid_mask, 3)
+            num_envs = mask.shape[0] if num_envs is None else num_envs
+            _validate_num_envs("valid_mask", mask, num_envs)
+            if mask.dtype != torch.bool:
+                raise ValueError("valid_mask must be a boolean tensor")
+            if self.rgb is not None and tuple(mask.shape) != tuple(self.rgb.shape[:3]):
+                raise ValueError("valid_mask must match the RGB image dimensions")
+            if self.depth is not None and tuple(mask.shape) != tuple(self.depth.shape):
+                raise ValueError("valid_mask must match the depth image dimensions")
 
     @property
     def quat_ros(self) -> torch.Tensor:

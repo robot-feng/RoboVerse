@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import gc
+import inspect
 import os
 import tempfile
 from typing import TYPE_CHECKING
@@ -25,14 +26,23 @@ import warp as wp
 from newton import Contacts
 from newton._src.sim.articulation import eval_fk
 from newton.sensors import SensorContact, SensorTiledCamera
+
+try:
+    from newton.sensors import SensorCamera
+except ImportError:  # Newton < 1.7
+    SensorCamera = None
 from newton.solvers import SolverMuJoCo
 from newton.viewer import ViewerGL
 
 from metasim.queries.base import BaseQueryType
+from metasim.scenario.cameras import FisheyeCameraCfg
+from metasim.scenario.lights import DistantLightCfg
 from metasim.scenario.objects import ArticulationObjCfg, PrimitiveCubeCfg, PrimitiveCylinderCfg, PrimitiveSphereCfg
 from metasim.scenario.robot import RobotCfg
 from metasim.sim import BaseSimHandler
+from metasim.sim.ground_styles import GROUND_CHECKER_DARK_RGB, GROUND_CHECKER_LIGHT_RGB
 from metasim.types import CompatActionInput
+from metasim.utils.fisheye import validate_fisheye_domain
 from metasim.utils.state import (
     CameraState,
     ObjectState,
@@ -47,11 +57,58 @@ from metasim.utils.state import (
 # JointType lived under _src.sim.joints and populate_contacts was a
 # free function) AND newton >= 1.2 (public JointType, contacts
 # auto-populated by solver). See _newton_compat.py.
-from ._newton_compat import JointType, add_mjcf, populate_contacts, set_current_world
+from ._newton_compat import (
+    JointType,
+    add_mjcf,
+    object_root_body_candidates,
+    populate_contacts,
+    restore_site_connect_anchors,
+    set_current_world,
+)
 
 # newton < 1.4 exposes ``SensorTiledCamera.Options`` and a per-sensor resolution; newer releases
 # render model-wide through ``sensor.utils`` / ``sensor.update``.
 _TILED_CAMERA_LEGACY_API = hasattr(SensorTiledCamera, "Options")
+_SENSOR_CAMERA_API = SensorCamera is not None
+
+
+def _fisheye_camera_rays(camera, device):
+    """Build native Newton rays from one explicitly calibrated fisheye camera."""
+    if not _SENSOR_CAMERA_API:
+        raise RuntimeError("Fisheye cameras require Newton SensorCamera (Newton >= 1.7)")
+    validate_fisheye_domain(camera)
+    common = dict(
+        image_width=camera.calibration_size[0],
+        image_height=camera.calibration_size[1],
+        max_fov=camera.max_fov_rad,
+        device=device,
+    )
+    cx, cy = camera.optical_center
+    if camera.projection_model == "opencv_fisheye":
+        fx, fy = camera.focal_length_px
+        k1, k2, k3, k4 = camera.coefficients
+        return SensorCamera.compute_camera_rays_fisheye_opencv(
+            camera.width, camera.height, fx, fy, cx, cy, k1=k1, k2=k2, k3=k3, k4=k4, **common
+        )
+    k0, k1, k2, k3, k4 = camera.coefficients
+    return SensorCamera.compute_camera_rays_fisheye_ftheta(
+        camera.width, camera.height, cx, cy, k0=k0, k1=k1, k2=k2, k3=k3, k4=k4, **common
+    )
+
+
+def _scenario_camera_light_direction(scenario) -> tuple[float, float, float] | None:
+    """Use the first declared distant-light direction when Newton is opted in."""
+    if not getattr(getattr(scenario, "sim_params", None), "newton_use_scenario_lights", False):
+        return None
+    distant = [light for light in scenario.lights if isinstance(light, DistantLightCfg)]
+    if not distant:
+        log.warning("Newton camera scene lighting requested without a distant light; using the default light direction")
+        return None
+    if len(distant) > 1:
+        log.warning("Newton camera scene lighting uses the first distant light; additional distant lights are ignored")
+    w, x, y, z = distant[0].quat
+    direction = tr.Rotation.from_quat((x, y, z, w)).apply((0.0, 0.0, -1.0))
+    return tuple(float(value) for value in direction)
 
 
 def _physics_mode_name(obj) -> str | None:
@@ -69,6 +126,13 @@ def _primitive_is_kinematic(obj) -> bool:
     return _physics_mode_name(obj) in {"XFORM", "GEOM"}
 
 
+def _geometry_has_kinematic_root(obj) -> bool:
+    """Whether a static visual/geometry object has a fixed configured world pose."""
+    if isinstance(obj, (PrimitiveCubeCfg, PrimitiveSphereCfg, PrimitiveCylinderCfg)):
+        return _primitive_is_kinematic(obj)
+    return _physics_mode_name(obj) in {"XFORM", "GEOM"}
+
+
 def _primitive_is_site(obj) -> bool:
     collision_enabled = getattr(obj, "collision_enabled", None)
     if collision_enabled is not None:
@@ -76,7 +140,80 @@ def _primitive_is_site(obj) -> bool:
     return _physics_mode_name(obj) == "XFORM"
 
 
-def _kinematic_primitive_default_root_state(obj, *, num_envs: int, device) -> torch.Tensor:
+def _add_checkerboard_ground_visual(builder: newton.ModelBuilder, *, extent: float = 100.0) -> int:
+    """Add a Genesis-like checkerboard as a textured, render-only ground mesh."""
+    resolution = 64
+    checker_size = resolution // 2
+    rows, cols = np.indices((resolution, resolution))
+    checker = ((rows // checker_size + cols // checker_size) % 2) == 0
+
+    # Genesis' default floor is a dark blue-gray checkerboard. The texture tiles once per meter,
+    # making each checker about 0.5 m across, similar to the other tutorial backends.
+    pixels = np.empty((resolution, resolution, 4), dtype=np.uint8)
+    pixels[checker] = (*GROUND_CHECKER_DARK_RGB, 255)
+    pixels[~checker] = (*GROUND_CHECKER_LIGHT_RGB, 255)
+
+    vertices = np.array(
+        [
+            [-extent, -extent, 0.001],
+            [extent, -extent, 0.001],
+            [extent, extent, 0.001],
+            [-extent, extent, 0.001],
+        ],
+        dtype=np.float32,
+    )
+    mesh = newton.Mesh(
+        vertices,
+        np.array([0, 1, 2, 0, 2, 3], dtype=np.int32),
+        normals=np.tile(np.array([[0.0, 0.0, 1.0]], dtype=np.float32), (4, 1)),
+        uvs=vertices[:, :2].copy(),
+        compute_inertia=False,
+        is_solid=False,
+        color=(1.0, 1.0, 1.0),
+        texture=pixels,
+    )
+    visual_cfg = builder.default_shape_cfg.copy()
+    visual_cfg.has_shape_collision = False
+    visual_cfg.has_particle_collision = False
+    return builder.add_shape_mesh(
+        body=-1,
+        mesh=mesh,
+        cfg=visual_cfg,
+        label="metasim_checkerboard_ground_visual",
+    )
+
+
+def _normalize_newton_mesh_textures(model: newton.Model) -> int:
+    """Expand RGB mesh textures to RGBA for Newton 1.7's tiled-camera loader."""
+    from newton.utils import load_texture
+
+    normalized_by_hash: dict[int, np.ndarray] = {}
+    converted = 0
+    for shape in model.shape_source:
+        if not isinstance(shape, newton.Mesh) or shape.texture is None:
+            continue
+
+        texture_hash = shape.texture_hash
+        if texture_hash in normalized_by_hash:
+            shape.texture = normalized_by_hash[texture_hash]
+            continue
+
+        pixels = load_texture(shape.texture)
+        if pixels is None or pixels.ndim != 3 or pixels.shape[2] != 3:
+            continue
+
+        rgba = np.empty((*pixels.shape[:2], 4), dtype=np.uint8)
+        rgba[..., :3] = pixels
+        rgba[..., 3] = 255
+        rgba = np.ascontiguousarray(rgba)
+        normalized_by_hash[texture_hash] = rgba
+        shape.texture = rgba
+        converted += 1
+
+    return converted
+
+
+def _kinematic_geometry_default_root_state(obj, *, num_envs: int, device) -> torch.Tensor:
     root_state = torch.zeros((num_envs, 13), dtype=torch.float32, device=device)
     root_state[:, 0:3] = torch.tensor(obj.default_position, dtype=torch.float32, device=device)
     root_state[:, 3:7] = torch.tensor(obj.default_orientation, dtype=torch.float32, device=device)
@@ -128,6 +265,8 @@ class NewtonHandler(BaseSimHandler):
         self._state_1: newton.State | None = None
         self._control: newton.Control | None = None
         self._solver: SolverMuJoCo | None = None
+        self._collision_pipeline: newton.CollisionPipeline | None = None
+        self._collision_contacts: Contacts | None = None
         self._viewer = None
         self._sim_time = 0.0
         self._use_mujoco_contacts = False
@@ -147,7 +286,7 @@ class NewtonHandler(BaseSimHandler):
         self._robot_joint_ids: dict[str, list[int]] = {}
         self._robot_body_ids: dict[str, list[int]] = {}
         self._body_children: dict[int, dict[int, list[int]]] = defaultdict(lambda: defaultdict(list))
-        self._body_child_to_joint: dict[int, dict[int, int]] = defaultdict(dict)
+        self._body_child_joints: dict[int, dict[int, list[int]]] = defaultdict(lambda: defaultdict(list))
         self._obj_body_indices: dict[int, dict[str, list[int]]] = defaultdict(dict)
         self._obj_joint_indices: dict[int, dict[str, list[int]]] = defaultdict(dict)
         self._obj_joint_name_cache: dict[int, dict[str, dict[str, int]]] = defaultdict(dict)
@@ -204,7 +343,7 @@ class NewtonHandler(BaseSimHandler):
         sim_params = self.scenario.sim_params
         use_mujoco_contacts = getattr(sim_params, "newton_use_mujoco_contacts", None)
         if use_mujoco_contacts is None:
-            use_mujoco_contacts = False
+            use_mujoco_contacts = True
 
         # Forward optional solver-iteration overrides (mjlab parity for stiff PD: 10/20).
         _iter_kw = {}
@@ -216,6 +355,12 @@ class NewtonHandler(BaseSimHandler):
         # contact computation to keep the cart-on-rails system bit-deterministic.
         if getattr(sim_params, "newton_mujoco_disable_contacts", False):
             _iter_kw["disable_contacts"] = True
+        if getattr(sim_params, "newton_mujoco_enable_multiccd", False):
+            if not use_mujoco_contacts:
+                raise ValueError("newton_mujoco_enable_multiccd requires MuJoCo contacts")
+            if "enable_multiccd" not in inspect.signature(SolverMuJoCo).parameters:
+                raise NotImplementedError("The installed Newton SolverMuJoCo does not support enable_multiccd")
+            _iter_kw["enable_multiccd"] = True
 
         if use_mujoco_contacts:
             self._solver = SolverMuJoCo(
@@ -225,14 +370,27 @@ class NewtonHandler(BaseSimHandler):
                 use_mujoco_contacts=use_mujoco_contacts,
                 **_iter_kw,
             )
-        else:  # A weird bug that if passes use_mujoco_contacts=False the contact number would be super large causing bugs
+        else:
             self._solver = SolverMuJoCo(
                 self._model,
                 njmax=sim_params.njmax,
                 nconmax=sim_params.nconmax,
+                use_mujoco_contacts=use_mujoco_contacts,
                 **_iter_kw,
             )
+        restored = restore_site_connect_anchors(self._model, self._solver, self._mjcf_site_connects)
+        if restored < 0:
+            log.warning("This Newton version cannot verify MJCF site-pair equality anchors")
+        elif restored:
+            log.debug(f"Restored {restored} authored MJCF site-pair equality anchor(s)")
         self._use_mujoco_contacts = bool(use_mujoco_contacts)
+
+        if not self._use_mujoco_contacts:
+            # Newton 1.5 deprecated Model.collide(), which rebuilt contacts through an
+            # implicit pipeline on every step. Keep the explicit pipeline and its
+            # contact buffer for the lifetime of the model instead.
+            self._collision_pipeline = newton.CollisionPipeline(self._model, broad_phase="explicit")
+            self._collision_contacts = self._collision_pipeline.contacts()
 
         # Initialize Contacts object for contact force queries
         nconmax = self._resolve_contact_capacity(sim_params.nconmax)
@@ -350,6 +508,19 @@ class NewtonHandler(BaseSimHandler):
 
         return cfg
 
+    def _add_default_ground(self, builder: newton.ModelBuilder) -> None:
+        """Add Newton's implicit plane and checkerboard unless the scenario opts out."""
+        if not getattr(self.scenario, "add_default_ground", True):
+            return
+        # newton < 1.2 lets you set current_world = -1 to mark global;
+        # newton 1.2+ makes any add outside begin_world() global by default.
+        set_current_world(builder, -1)
+        ground_shape_cfg = self._get_ground_shape_cfg(builder)
+        ground_shape_idx = builder.add_ground_plane(cfg=ground_shape_cfg, color=(0.18, 0.24, 0.32))
+        # The collision plane remains the physical ground; this separate mesh only adds visuals.
+        _add_checkerboard_ground_visual(builder)
+        self._shape_color_overrides[ground_shape_idx] = np.array([0.18, 0.24, 0.32, 1.0], dtype=np.float32)
+
     def _apply_foot_friction_overrides(self) -> None:
         """Apply ground friction to foot shapes based on robot feet_links."""
         if self._model is None or self._model.shape_material_mu is None:
@@ -415,15 +586,9 @@ class NewtonHandler(BaseSimHandler):
 
         # dt is set during solver.step()
 
-        # Add ground plane (global, shared across all worlds).
-        # newton < 1.2 lets you set current_world = -1 to mark global;
-        # newton 1.2+ makes any add outside begin_world() global by default.
-        set_current_world(builder, -1)
         self._shape_color_overrides = {}
-        ground_shape_cfg = self._get_ground_shape_cfg(builder)
-        ground_shape_idx = builder.add_ground_plane(cfg=ground_shape_cfg)
-        # Give the ground a neutral gray to avoid pure white output
-        self._shape_color_overrides[ground_shape_idx] = np.array([0.35, 0.35, 0.35, 1.0], dtype=np.float32)
+        self._mjcf_site_connects: dict[str, str] = {}
+        self._add_default_ground(builder)
 
         # Add robots and objects for each environment (reuse a single template builder)
         self._obj_to_root_body = defaultdict(dict)
@@ -431,40 +596,32 @@ class NewtonHandler(BaseSimHandler):
         env_builder = newton.ModelBuilder()
         self._configure_builder_defaults(env_builder)
 
-        # Track local indices for this env template
-        env_map = {}
         env_shape_colors: dict[int, np.ndarray] = {}
 
         # Add robot(s) once to template
         for robot in self.robots:
-            start_count = len(env_builder.body_mass)
             self._add_robot_to_builder(env_builder, robot)
-            end_count = len(env_builder.body_mass)
-            if end_count > start_count:
-                env_map[robot.name] = start_count
 
         # Add objects once to template
         for obj in self.objects:
-            start_count = len(env_builder.body_mass)
             self._add_object_to_builder(env_builder, obj, env_shape_colors)
-            end_count = len(env_builder.body_mass)
-            if end_count > start_count:
-                env_map[obj.name] = start_count
 
         # Instantiate identical worlds from template
         for env_id in range(self.num_envs):
-            global_offset = len(builder.body_mass)
             shape_offset = builder.shape_count
             builder.add_world(env_builder)
-
-            for name, local_idx in env_map.items():
-                self._obj_to_root_body[env_id][name] = global_offset + local_idx
 
             for local_shape_idx, color in env_shape_colors.items():
                 self._shape_color_overrides[shape_offset + local_shape_idx] = color
 
         # Finalize model
         self._model = builder.finalize(device=self._device)
+        if self._model.shape_color is not None and self._shape_color_overrides:
+            model_colors = self._model.shape_color.numpy()
+            for shape_idx, color in self._shape_color_overrides.items():
+                if 0 <= shape_idx < model_colors.shape[0]:
+                    model_colors[shape_idx] = color[: model_colors.shape[1]]
+            self._model.shape_color.assign(model_colors)
         log.debug(f"Newton model built: {self._model.body_count} bodies, {self._model.joint_count} joints")
 
     def _mjcf_with_cfg_actuators_stripped(self, mjcf_path: str, robot) -> tuple[str, bool]:
@@ -481,43 +638,52 @@ class NewtonHandler(BaseSimHandler):
         ``_apply_actuator_settings`` installs. The MuJoCo backend avoids this by
         reconfiguring the single asset actuator in-place; on Newton we instead
         remove the asset actuator for any cfg-controlled joint so exactly one
-        servo (the cfg one) drives it.
+        servo (the cfg one) drives it. The importer also uses the MJCF model
+        name as the articulation label, so give each configured robot its own
+        label to keep root-body lookups unique when an asset is instantiated
+        more than once.
 
         Returns ``(path, is_temp)``. ``is_temp`` paths are written next to the
         original (so relative mesh/include paths still resolve) and must be
         deleted by the caller after import. When nothing needs stripping the
-        original path is returned with ``is_temp=False``.
+        original path is returned with ``is_temp=False`` when no changes are
+        needed.
         """
         actuators = getattr(robot, "actuators", None)
-        if not actuators:
-            return mjcf_path, False
         try:
             tree = ET.parse(mjcf_path)
         except Exception as exc:  # pragma: no cover - fall back to raw asset
-            log.debug(f"Newton: could not pre-parse {mjcf_path} to strip actuators ({exc}); using as-is")
+            log.debug(f"Newton: could not pre-parse {mjcf_path} ({exc}); using as-is")
             return mjcf_path, False
         root = tree.getroot()
+        namespace_needed = root.get("model") != robot.name
         act_section = root.find("actuator")
-        if act_section is None:
+        controlled = set(actuators or {})
+        to_remove = [] if act_section is None else [el for el in list(act_section) if el.get("joint") in controlled]
+        if not to_remove and not namespace_needed:
             return mjcf_path, False
-        controlled = set(actuators.keys())
-        to_remove = [el for el in list(act_section) if el.get("joint") in controlled]
-        if not to_remove:
-            return mjcf_path, False
+
+        if namespace_needed:
+            root.set("model", robot.name)
+        act_section = root.find("actuator")
         for el in to_remove:
-            act_section.remove(el)
+            if act_section is not None:
+                act_section.remove(el)
         # Drop an emptied <actuator> so the importer's parse_actuators is skipped.
-        if len(act_section) == 0:
+        if act_section is not None and len(act_section) == 0:
             root.remove(act_section)
         src = Path(mjcf_path)
-        fd, tmp = tempfile.mkstemp(prefix=f".{src.stem}_noact_", suffix=".xml", dir=str(src.parent))
+        fd, tmp = tempfile.mkstemp(prefix=f".{src.stem}_{robot.name}_", suffix=".xml", dir=str(src.parent))
         os.close(fd)
         tree.write(tmp)
-        log.debug(
-            f"Newton: stripped {len(to_remove)} cfg-controlled <actuator> "
-            f"entr{'y' if len(to_remove) == 1 else 'ies'} from {src.name} for "
-            f"'{robot.name}' (cfg joint_target PD is authoritative)"
-        )
+        changes = []
+        if to_remove:
+            changes.append(
+                f"stripped {len(to_remove)} cfg-controlled <actuator> entr{'y' if len(to_remove) == 1 else 'ies'}"
+            )
+        if namespace_needed:
+            changes.append(f"scoped MJCF model name as '{robot.name}'")
+        log.debug(f"Newton: {' and '.join(changes)} in {src.name} for '{robot.name}'")
         return tmp, True
 
     def _add_robot_to_builder(self, builder: newton.ModelBuilder, robot) -> None:
@@ -540,13 +706,17 @@ class NewtonHandler(BaseSimHandler):
         )
 
         if mjcf_path and isinstance(mjcf_path, str) and mjcf_path.endswith(".xml"):
-            # For MJCF: pass floating=None so the parser respects the joints
-            # already defined in the XML (e.g. mjlab cartpole has a slider
-            # joint that injecting a fixed/free root would clobber). URDF
-            # path below still uses fix_base_link since URDF doesn't natively
-            # model "base attaches via a constrained joint" — it's always
-            # fully fixed or fully floating.
-            #
+            # Keep authored site pairs: some Newton releases infer the second
+            # endpoint from the reference pose instead of reading site2.
+            root = ET.parse(mjcf_path).getroot()
+            for connect in root.findall("./equality/connect"):
+                if connect.get("site1") and connect.get("site2"):
+                    name = connect.get("name")
+                    if name is None:
+                        log.warning("Unnamed MJCF site-pair equality cannot be checked for Newton anchor fidelity")
+                        continue
+                    self._mjcf_site_connects[f"{robot.name}/{name}"] = connect.get("site2")
+            # Let the MJCF declare root mobility; injecting fixed/free here can clobber joints already in the file.
             # Strip the asset's <actuator> entries for joints that RobotCfg
             # controls so the cfg-driven joint_target PD (see
             # _apply_actuator_settings) is the sole control path — otherwise
@@ -601,6 +771,7 @@ class NewtonHandler(BaseSimHandler):
         self, builder: newton.ModelBuilder, obj, shape_colors: dict[int, np.ndarray] | None = None
     ) -> None:
         """Add an object to the model builder."""
+        first_shape = len(builder.shape_flags)
         if isinstance(obj, PrimitiveCubeCfg):
             xform = wp.transform(
                 wp.vec3(*obj.default_position),
@@ -665,6 +836,7 @@ class NewtonHandler(BaseSimHandler):
                     floating=not obj.fix_base_link,
                     ignore_inertial_definitions=False,
                     collapse_fixed_joints=getattr(obj, "collapse_fixed_joints", False),
+                    joint_damping_mode="passive",
                 )
         else:
             # Try URDF for other file-based objects
@@ -680,6 +852,13 @@ class NewtonHandler(BaseSimHandler):
                     ignore_inertial_definitions=False,
                     collapse_fixed_joints=getattr(obj, "collapse_fixed_joints", False),
                 )
+
+        if getattr(obj, "newton_hide_collision_shapes", False):
+            collision_flag = int(newton.ShapeFlags.COLLIDE_SHAPES)
+            visible_flag = int(newton.ShapeFlags.VISIBLE)
+            for index in range(first_shape, len(builder.shape_flags)):
+                if int(builder.shape_flags[index]) & collision_flag:
+                    builder.shape_flags[index] = int(builder.shape_flags[index]) & ~visible_flag
 
     def _sanitize_urdf(self, urdf_path: str | None) -> str | None:
         """Patch URDF mesh paths into backend-readable absolute paths.
@@ -742,7 +921,7 @@ class NewtonHandler(BaseSimHandler):
         self._body_name_cache = defaultdict(dict)
         self._joint_name_cache = defaultdict(dict)
         self._body_children = defaultdict(lambda: defaultdict(list))
-        self._body_child_to_joint = defaultdict(dict)
+        self._body_child_joints = defaultdict(lambda: defaultdict(list))
         self._obj_body_indices = defaultdict(dict)
         self._obj_joint_indices = defaultdict(dict)
         self._obj_joint_name_cache = defaultdict(dict)
@@ -791,10 +970,39 @@ class NewtonHandler(BaseSimHandler):
                 self._body_parent_joint[child_idx] = i
                 world = joint_worlds[i]
                 if world != -1:
-                    self._body_child_to_joint[world][child_idx] = i
+                    # MJCF equality loops add a second joint edge to a body
+                    # that already has its tree joint. Keep every incoming
+                    # joint: replacing the tree joint with the loop joint
+                    # hides the tree DOF from name lookup and reset-state
+                    # application (notably the G1 gripper's idx33/idx43).
+                    self._body_child_joints[world][child_idx].append(i)
                     parent_idx = joint_parents[i]
                     if parent_idx >= 0:
                         self._body_children[world][parent_idx].append(child_idx)
+
+        # ModelBuilder indices can shift when finalize() collapses fixed joints.
+        # Resolve each configured root against the finalized body's scoped name
+        # and joint tree; pre-finalize body_mass offsets can point at a neighbor.
+        self._obj_to_root_body = defaultdict(dict)
+        for env_id, body_name_to_id in self._body_name_cache.items():
+            for obj in (*self.robots, *self.objects):
+                candidates = object_root_body_candidates(
+                    body_name_to_id,
+                    self._body_parent_joint,
+                    joint_parents,
+                    obj.name,
+                )
+                if len(candidates) == 1:
+                    self._obj_to_root_body[env_id][obj.name] = candidates[0]
+                elif not candidates and _geometry_has_kinematic_root(obj):
+                    # Static primitive and mesh geometry attaches directly to
+                    # the world and intentionally has no model body to index.
+                    continue
+                else:
+                    log.warning(
+                        f"Newton could not resolve a unique finalized root body for '{obj.name}' "
+                        f"in env {env_id}: candidates={candidates}"
+                    )
 
         # Access start indices for fast lookup
         self._joint_q_starts = self._model.joint_q_start.numpy()
@@ -1208,11 +1416,13 @@ class NewtonHandler(BaseSimHandler):
 
         body_ids = self._get_body_indices(env_id, obj_name)
         joint_ids = []
-        joint_map = self._body_child_to_joint.get(env_id, {})
+        joints_by_body = self._body_child_joints.get(env_id, {})
         for body_idx in body_ids:
-            joint_idx = joint_map.get(body_idx)
-            if joint_idx is not None:
-                joint_ids.append(joint_idx)
+            joint_ids.extend(joints_by_body.get(body_idx, ()))
+
+        # A body can be reached by both its articulated-tree edge and one or
+        # more equality-loop edges. Preserve all those joints once each.
+        joint_ids = list(dict.fromkeys(joint_ids))
 
         self._obj_joint_indices[env_id][obj_name] = joint_ids
         return joint_ids
@@ -1423,32 +1633,83 @@ class NewtonHandler(BaseSimHandler):
         return wp.transformf(wp.vec3(*pos_np), wp.quat(*quat_xyzw))
 
     def _build_camera_transforms(self, cam_indices: list[int]) -> wp.array:
-        """Build per-camera, per-world transforms for SensorTiledCamera."""
+        """Build per-camera, per-world transforms for Newton camera sensors."""
         transforms = []
+        body_poses = None
         for cam_idx in cam_indices:
             cam_cfg = self.scenario.cameras[cam_idx]
-            look_at = cam_cfg.look_at if getattr(cam_cfg, "look_at", None) else None
-            cam_tf = self._camera_pose_to_transform(cam_cfg.pos, look_at)
-            transforms.append([cam_tf for _ in range(self.num_envs)])
+            if cam_cfg.mount_to is None:
+                look_at = cam_cfg.look_at if getattr(cam_cfg, "look_at", None) else None
+                cam_tf = self._camera_pose_to_transform(cam_cfg.pos, look_at)
+                transforms.append([cam_tf for _ in range(self.num_envs)])
+                continue
+            if not isinstance(cam_cfg.mount_to, str) or not isinstance(cam_cfg.mount_link, str):
+                raise ValueError(f"Camera {cam_cfg.name} needs string mount_to and mount_link")
+            if cam_cfg.mount_pos is None or cam_cfg.mount_quat is None:
+                raise ValueError(f"Camera {cam_cfg.name} needs mount_pos and mount_quat")
+            if body_poses is None:
+                body_poses = self._state_0.body_q.numpy()
+            local_rotation = tr.Rotation.from_quat(cam_cfg.mount_quat, scalar_first=True)
+            per_world = []
+            for env_id in range(self.num_envs):
+                matches = [
+                    body_id
+                    for name, body_id in self._body_name_cache[env_id].items()
+                    if cam_cfg.mount_to in name.replace("\\", "/").split("/")
+                    and name.replace("\\", "/").split("/")[-1] == cam_cfg.mount_link.split("/")[-1]
+                ]
+                if len(matches) != 1:
+                    raise ValueError(f"Camera {cam_cfg.name} cannot uniquely resolve its mount in env {env_id}")
+                pose = body_poses[matches[0]]
+                link_rotation = tr.Rotation.from_quat(pose[3:7])
+                position = pose[:3] + link_rotation.apply(cam_cfg.mount_pos)
+                quaternion = (link_rotation * local_rotation).as_quat()
+                per_world.append(wp.transformf(wp.vec3(*position), wp.quat(*quaternion)))
+            transforms.append(per_world)
         return wp.array(transforms, dtype=wp.transformf, device=self._model.device if self._model else None)
 
     def _init_tiled_cameras(self) -> None:
-        """Initialize SensorTiledCamera groups for decoupled camera rendering."""
+        """Initialize Newton camera groups for decoupled camera rendering."""
         self._camera_groups = []
         self._use_tiled_camera = False
 
         if not self.scenario.cameras or self._model is None:
             return
 
-        # Group cameras by resolution since SensorTiledCamera requires uniform size per sensor
-        cam_groups: dict[tuple[int, int], list[int]] = defaultdict(list)
+        normalized_textures = _normalize_newton_mesh_textures(self._model)
+        if normalized_textures:
+            log.debug(f"Expanded {normalized_textures} RGB mesh texture(s) to RGBA for Newton camera rendering.")
+
+        light_direction = _scenario_camera_light_direction(self.scenario)
+        if light_direction is not None and (_TILED_CAMERA_LEGACY_API or not _SENSOR_CAMERA_API):
+            log.warning("This Newton camera API cannot set a scenario light direction; using its default light")
+            light_direction = None
+        background = self.scenario.sim_params.newton_camera_background_rgb
+        if background is not None and (_TILED_CAMERA_LEGACY_API or not _SENSOR_CAMERA_API):
+            log.warning("This Newton camera API cannot set the camera background; using its default")
+            background = None
+        if background is not None and (
+            not hasattr(SensorCamera, "ClearData")
+            or "default_clear_data" not in inspect.signature(SensorCamera).parameters
+        ):
+            log.warning("This Newton camera API cannot set the camera background; using its default")
+            background = None
+
+        # SensorCamera shares one ray grid across a group. Each fisheye gets its
+        # own group so distinct calibrations can never accidentally share rays.
+        cam_groups: dict[tuple[int, int, float, int], list[int]] = defaultdict(list)
         for idx, cam_cfg in enumerate(self.scenario.cameras):
-            cam_groups[(cam_cfg.width, cam_cfg.height)].append(idx)
+            is_fisheye = isinstance(cam_cfg, FisheyeCameraCfg)
+            fov = 0.0 if is_fisheye else math.radians(cam_cfg.vertical_fov)
+            cam_groups[(cam_cfg.width, cam_cfg.height, round(fov, 8), idx if is_fisheye else -1)].append(idx)
 
         try:
             with wp.ScopedDevice(self._model.device):
-                for (width, height), cam_indices in cam_groups.items():
-                    fovs = [math.radians(self.scenario.cameras[i].vertical_fov) for i in cam_indices]
+                for (width, height, _fov, fisheye_idx), cam_indices in cam_groups.items():
+                    is_fisheye = fisheye_idx >= 0
+                    if is_fisheye and not _SENSOR_CAMERA_API:
+                        raise RuntimeError("Fisheye cameras require Newton SensorCamera (Newton >= 1.7)")
+                    fovs = [] if is_fisheye else [math.radians(self.scenario.cameras[i].vertical_fov) for i in cam_indices]
                     if _TILED_CAMERA_LEGACY_API:
                         sensor = SensorTiledCamera(
                             model=self._model,
@@ -1470,28 +1731,73 @@ class NewtonHandler(BaseSimHandler):
                         color_image = sensor.create_color_image_output()
                         depth_image = sensor.create_depth_image_output()
                     else:
-                        # newton >= 1.4: the sensor is model-wide; resolution, rays, outputs and
-                        # lights come from ``sensor.utils`` and rendering is ``sensor.update``.
-                        render_config = SensorTiledCamera.RenderConfig(enable_shadows=True)
-                        try:
-                            sensor = SensorTiledCamera(model=self._model, default_render_config=render_config)
-                        except Exception as texture_err:  # e.g. RGB textures where the sensor expects RGBA
-                            log.warning(
-                                f"SensorTiledCamera could not load textures ({texture_err}); rendering untextured."
+                        # Newton 1.7 replaces the deprecated tiled camera with a sensor
+                        # whose view-to-world mapping is supplied to update().
+                        if _SENSOR_CAMERA_API:
+                            render_config = SensorCamera.RenderConfig(enable_shadows=True, enable_textures=True)
+                            sensor_options = {}
+                            if background is not None:
+                                r, g, b = background
+                                sensor_options["default_clear_data"] = SensorCamera.ClearData(
+                                    clear_color=r | (g << 8) | (b << 16) | (255 << 24)
+                                )
+                            try:
+                                sensor = SensorCamera(
+                                    model=self._model, default_render_config=render_config, **sensor_options
+                                )
+                            except Exception as texture_err:  # e.g. RGB textures where the sensor expects RGBA
+                                log.warning(
+                                    f"SensorCamera could not load textures ({texture_err}); rendering untextured."
+                                )
+                                sensor = SensorCamera(
+                                    model=self._model,
+                                    default_render_config=render_config,
+                                    load_textures=False,
+                                    **sensor_options,
+                                )
+                            sensor.create_default_light(
+                                enable_shadows=True,
+                                direction=wp.vec3f(*light_direction) if light_direction is not None else None,
                             )
-                            sensor = SensorTiledCamera(
-                                model=self._model, default_render_config=render_config, load_textures=False
+                            camera_rays = (
+                                _fisheye_camera_rays(self.scenario.cameras[fisheye_idx], self._model.device)
+                                if is_fisheye
+                                else SensorCamera.compute_camera_rays_pinhole(
+                                    width, height, camera_fov=fovs[0], device=self._model.device
+                                )
                             )
-                        sensor.utils.create_default_light(enable_shadows=True)
-                        if self._shape_color_overrides:
-                            log.warning(
-                                "Per-shape color overrides are not supported by this newton version's "
-                                "SensorTiledCamera; rendering with model colors."
-                            )
-                        camera_rays = sensor.utils.compute_camera_rays_pinhole(width, height, camera_fovs=fovs)
-                        color_image = sensor.utils.create_color_image_output(width, height, len(cam_indices))
-                        depth_image = sensor.utils.create_depth_image_output(width, height, len(cam_indices))
+                            view_count = len(cam_indices) * self.num_envs
+                            color_image = sensor.allocate_image_color(view_count, width, height)
+                            depth_image = sensor.allocate_image_depth(view_count, width, height)
+                        else:
+                            # Newton 1.4–1.6 expose the model-wide tiled-camera API.
+                            render_config = SensorTiledCamera.RenderConfig(enable_shadows=True, enable_textures=True)
+                            try:
+                                sensor = SensorTiledCamera(model=self._model, default_render_config=render_config)
+                            except Exception as texture_err:  # e.g. RGB textures where the sensor expects RGBA
+                                log.warning(
+                                    f"SensorTiledCamera could not load textures ({texture_err}); rendering untextured."
+                                )
+                                sensor = SensorTiledCamera(
+                                    model=self._model, default_render_config=render_config, load_textures=False
+                                )
+                            sensor.utils.create_default_light(enable_shadows=True)
+                            camera_rays = sensor.utils.compute_camera_rays_pinhole(width, height, camera_fovs=fovs)
+                            color_image = sensor.utils.create_color_image_output(width, height, len(cam_indices))
+                            depth_image = sensor.utils.create_depth_image_output(width, height, len(cam_indices))
                     camera_transforms = self._build_camera_transforms(cam_indices)
+                    world_indices = None
+                    if _SENSOR_CAMERA_API:
+                        camera_transforms = wp.array(
+                            camera_transforms.numpy().reshape(-1),
+                            dtype=wp.transformf,
+                            device=self._model.device,
+                        )
+                        world_indices = wp.array(
+                            np.tile(np.arange(self.num_envs, dtype=np.int32), len(cam_indices)),
+                            dtype=wp.int32,
+                            device=self._model.device,
+                        )
 
                     self._camera_groups.append({
                         "width": width,
@@ -1502,20 +1808,28 @@ class NewtonHandler(BaseSimHandler):
                         "color_image": color_image,
                         "depth_image": depth_image,
                         "camera_transforms": camera_transforms,
+                        "world_indices": world_indices,
+                        "valid_mask": (
+                            torch.from_numpy(np.any(camera_rays.numpy()[:, :, 0, 1, :] != 0, axis=-1))
+                            if is_fisheye
+                            else None
+                        ),
                     })
 
             self._use_tiled_camera = True
+            sensor_name = "SensorCamera" if _SENSOR_CAMERA_API else "SensorTiledCamera"
             log.info(
-                f"Initialized SensorTiledCamera for {len(self.scenario.cameras)} camera(s) "
-                f"across {len(self._camera_groups)} resolution group(s)."
+                f"Initialized {sensor_name} for {len(self.scenario.cameras)} camera(s) in {len(self._camera_groups)} group(s)."
             )
         except Exception as e:
-            log.warning(f"Failed to initialize SensorTiledCamera. Camera outputs disabled. Error: {e}")
+            if any(isinstance(camera, FisheyeCameraCfg) or camera.mount_to is not None for camera in self.scenario.cameras):
+                raise RuntimeError("Failed to initialize mounted or fisheye Newton cameras") from e
+            log.warning(f"Failed to initialize Newton camera sensors. Camera outputs disabled. Error: {e}")
             self._camera_groups = []
             self._use_tiled_camera = False
 
     def _render_tiled_cameras(self, env_ids: list[int]) -> dict:
-        """Render cameras using SensorTiledCamera and return CameraState dict."""
+        """Render cameras using Newton camera sensors and return CameraState dict."""
         camera_states = {}
         if not self._camera_groups or self._state_0 is None or self._model is None:
             return camera_states
@@ -1525,7 +1839,9 @@ class NewtonHandler(BaseSimHandler):
 
         with wp.ScopedDevice(self._model.device):
             for group in self._camera_groups:
-                sensor: SensorTiledCamera = group["sensor"]
+                sensor = group["sensor"]
+                if any(self.scenario.cameras[i].mount_to is not None for i in group["cam_indices"]):
+                    group["camera_transforms"] = self._build_camera_transforms(group["cam_indices"])
                 if _TILED_CAMERA_LEGACY_API:
                     sensor.render(
                         self._state_0,
@@ -1533,6 +1849,21 @@ class NewtonHandler(BaseSimHandler):
                         group["camera_rays"],
                         color_image=group["color_image"],
                         depth_image=group["depth_image"],
+                    )
+                elif _SENSOR_CAMERA_API:
+                    # One view per (camera, world); the sensor API accepts a flat view list.
+                    transforms = self._build_camera_transforms(group["cam_indices"])
+                    group["camera_transforms"] = wp.array(
+                        transforms.numpy().reshape(-1), dtype=wp.transformf, device=self._model.device
+                    )
+                    self._model.bvh_refit_shapes(self._state_0)
+                    sensor.update(
+                        self._state_0,
+                        group["camera_transforms"],
+                        group["camera_rays"],
+                        color_image=group["color_image"],
+                        depth_image=group["depth_image"],
+                        world_indices=group["world_indices"],
                     )
                 else:
                     # Shape BVHs are built for the initial state at finalize; refit for moved bodies.
@@ -1557,7 +1888,12 @@ class NewtonHandler(BaseSimHandler):
                     depth_tensor = None
 
                     if color_np is not None:
-                        color_cam = color_np[:, local_idx, :].reshape(num_worlds, height, width)
+                        if _SENSOR_CAMERA_API:
+                            color_cam = color_np.reshape(len(group["cam_indices"]), num_worlds, height, width)[
+                                local_idx
+                            ]
+                        else:
+                            color_cam = color_np[:, local_idx, :].reshape(num_worlds, height, width)
                         r = (color_cam & 0xFF).astype(np.uint8)
                         g = ((color_cam >> 8) & 0xFF).astype(np.uint8)
                         b = ((color_cam >> 16) & 0xFF).astype(np.uint8)
@@ -1568,21 +1904,33 @@ class NewtonHandler(BaseSimHandler):
 
                     if depth_np is not None:
                         # CameraState.depth is (num_envs, H, W) — no trailing channel axis.
-                        depth = depth_np[:, local_idx, :].reshape(num_worlds, height, width)
+                        if _SENSOR_CAMERA_API:
+                            depth = depth_np.reshape(len(group["cam_indices"]), num_worlds, height, width)[local_idx]
+                        else:
+                            depth = depth_np[:, local_idx, :].reshape(num_worlds, height, width)
                         depth_tensor = torch.from_numpy(depth).to(self._device)
                         if len(use_env_ids) != num_worlds:
                             depth_tensor = depth_tensor[use_env_ids]
 
-                    intrinsics = (
-                        torch.tensor(cam_cfg.intrinsics, dtype=torch.float32, device=self.device)
-                        .unsqueeze(0)
-                        .expand(len(use_env_ids), -1, -1)
-                    )
+                    # A pinhole 3x3 matrix does not describe the fisheye mapping;
+                    # the full calibration lives in FisheyeCameraCfg.
+                    intrinsics = None
+                    if not isinstance(cam_cfg, FisheyeCameraCfg):
+                        intrinsics = (
+                            torch.tensor(cam_cfg.intrinsics, dtype=torch.float32, device=self.device)
+                            .unsqueeze(0)
+                            .expand(len(use_env_ids), -1, -1)
+                        )
 
                     camera_states[cam_cfg.name] = CameraState(
                         rgb=rgb_tensor,
                         depth=depth_tensor,
                         intrinsics=intrinsics,
+                        valid_mask=(
+                            group["valid_mask"].to(self.device).unsqueeze(0).expand(len(use_env_ids), -1, -1)
+                            if group["valid_mask"] is not None
+                            else None
+                        ),
                     )
 
         return camera_states
@@ -1599,7 +1947,10 @@ class NewtonHandler(BaseSimHandler):
             if self._use_mujoco_contacts:
                 contacts = self._contacts if self._contacts is not None else Contacts(0, 0, device=self._device)
             else:
-                contacts = self._model.collide(self._state_0)
+                if self._collision_pipeline is None or self._collision_contacts is None:
+                    raise RuntimeError("Newton collision pipeline was not initialized")
+                contacts = self._collision_contacts
+                self._collision_pipeline.collide(self._state_0, contacts)
 
             # Step solver
             self._solver.step(
@@ -1856,15 +2207,14 @@ class NewtonHandler(BaseSimHandler):
                     if joint_qd is not None:
                         joint_vel[row, col] = joint_qd[qd_start]
 
-        if isinstance(obj_cfg, (PrimitiveCubeCfg, PrimitiveSphereCfg, PrimitiveCylinderCfg)):
-            if _primitive_is_kinematic(obj_cfg):
-                missing_root = all(self._obj_to_root_body.get(env_id, {}).get(obj_name) is None for env_id in env_ids)
-                if missing_root:
-                    root_state = _kinematic_primitive_default_root_state(
-                        obj_cfg,
-                        num_envs=len(env_ids),
-                        device=self._device,
-                    )
+        if obj_cfg is not None and _geometry_has_kinematic_root(obj_cfg):
+            missing_root = all(self._obj_to_root_body.get(env_id, {}).get(obj_name) is None for env_id in env_ids)
+            if missing_root:
+                root_state = _kinematic_geometry_default_root_state(
+                    obj_cfg,
+                    num_envs=len(env_ids),
+                    device=self._device,
+                )
 
         body_state = None
         if body_states and body_states[0] is not None:
@@ -2741,6 +3091,8 @@ class NewtonHandler(BaseSimHandler):
         self._camera_groups = []
         self._use_tiled_camera = False
         self._contacts = None
+        self._collision_contacts = None
+        self._collision_pipeline = None
         self._contact_sensor = None
         self._shape_color_overrides = {}
         self._model = None

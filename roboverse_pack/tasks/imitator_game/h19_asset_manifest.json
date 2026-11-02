@@ -1,0 +1,124 @@
+{
+  "schema": "roboverse.imitator_game.h19_assets.v1",
+  "source": {
+    "name": "The-Imitator-Game",
+    "upstream_reference_sha": "3c3404af98727f6d4783537732d0db8e973dfba5",
+    "local_source_tree_sha256": "b67adb166eb70411fc341985b4fa6fe48d5bf78428282d099587ae997e905ce5",
+    "local_tree_proven_identical_to_upstream_sha": false,
+    "human_task_id": "human_H19",
+    "source_embodiment": "panda_wristcam_pair",
+    "roboverse_realization": "roboverse_franka_pair"
+  },
+  "ycb_asset_archive": {
+    "repository": "https://huggingface.co/datasets/imitator-game/IG-10K-Assets",
+    "revision": "2d7a339b27aff14a0780db4bd4d5e3a68c6358bc",
+    "archive": "assets.tar.zst",
+    "size_bytes": 27154679,
+    "sha256": "1a4a5a2e4b6b9866ab5d75969ae0c8cec7dadf57ee20a2907d694f43a4fd0d92",
+    "asset_license": "CC BY-NC 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-nc/4.0/",
+    "prepared_root": "roboverse_data/icl/objects/imitator_game/h19/ycb"
+  },
+  "robotwin_asset_source": {
+    "repository": "https://huggingface.co/datasets/TianxingChen/RoboTwin2.0",
+    "revision": "39b4a57384f28b6ed0ea1118871ae302e67eae38",
+    "source_commit_date": "2025-06-16T17:14:26Z",
+    "asset_license": "MIT License (declared in repository dataset card and objects/README.md)",
+    "license_source": "https://huggingface.co/datasets/TianxingChen/RoboTwin2.0/blob/39b4a57384f28b6ed0ea1118871ae302e67eae38/objects/README.md",
+    "prepared_namespace": "roboverse_data/icl/objects/imitator_game/h19/robotwin_prepared",
+    "raw_namespace": "roboverse_data/icl/objects/imitator_game/h19/robotwin"
+  },
+  "levels": {
+    "L0": {
+      "simulator_env_id": "TwoRobotCleanDesk-v1",
+      "robot_task_aliases": ["robot_H19_L0"],
+      "sim_task_aliases": ["L0_TwoRobotCleanDesk-v1"],
+      "scene_id": "h19_clean_desk_l0",
+      "roboverse_task_id": "imitator_game.h19.clean_desk.l0",
+      "assets": [
+        {
+          "role": "sponge",
+          "namespace": "ycb",
+          "source_id": "026_sponge",
+          "task_scale": 0.8,
+          "mass_kg": 0.5,
+          "mass_rule": "source task sets actor mass to 0.5 kg"
+        },
+        {
+          "role": "brick",
+          "namespace": "ycb",
+          "source_id": "061_foam_brick",
+          "task_scale": 0.4,
+          "density_kg_m3": 1000,
+          "mass_rule": "density times volume of the source-scaled convex collision hull",
+          "prepared_mass_kg_observed": 0.013418
+        }
+      ]
+    },
+    "L1": {
+      "simulator_env_id": "TwoRobotCleanDesk-v1",
+      "robot_task_aliases": ["robot_H19_L1"],
+      "sim_task_aliases": ["L1_TwoRobotCleanDesk-v1"],
+      "scene_id": "h19_clean_desk_l1",
+      "roboverse_task_id": "imitator_game.h19.clean_desk.l1",
+      "scene_mutations": ["source sponge X offset -0.1 m"],
+      "assets_inherited_from": "L0"
+    },
+    "L2": {
+      "simulator_env_id": "TwoRobotCleanDesk-v1",
+      "robot_task_aliases": ["robot_H19_L2"],
+      "sim_task_aliases": ["L2_TwoRobotCleanDesk-v1"],
+      "scene_id": "h19_clean_desk_l2",
+      "roboverse_task_id": "imitator_game.h19.clean_desk.l2",
+      "assets": [
+        {
+          "role": "sponge_replacement",
+          "namespace": "ycb",
+          "source_id": "036_wood_block",
+          "task_scale": 0.5,
+          "mass_kg": 0.5,
+          "mass_rule": "source task sets actor mass to 0.5 kg",
+          "orientation_euler_xyz_rad": [1.5707963267948966, 0, 0]
+        },
+        {
+          "role": "brick",
+          "namespace": "ycb",
+          "source_id": "061_foam_brick",
+          "task_scale": 0.4,
+          "density_kg_m3": 1000,
+          "mass_rule": "density times volume of the source-scaled convex collision hull",
+          "prepared_mass_kg_observed": 0.013418
+        }
+      ]
+    },
+    "L3": {
+      "simulator_env_id": "TwoRobotCleanDeskL3-v1",
+      "robot_task_aliases": ["robot_H19_L3"],
+      "sim_task_aliases": ["L3_TwoRobotCleanDesk-v1"],
+      "scene_id": "h19_clean_desk_l3",
+      "roboverse_task_id": "imitator_game.h19.clean_desk.l3",
+      "asset_status": "source_verified_wrapper_conversion_required",
+      "asset": {
+        "namespace": "robotwin",
+        "source_id": "023_tissue-box",
+        "model_id": 3,
+        "task_scale_xyz": [0.2, 0.13, 0.06],
+        "metadata_scale": [0.06, 0.06, 0.06],
+        "scale_semantics": "replace_scale=True; bake task scale and ignore metadata scale",
+        "raw_local_path": "roboverse_data/icl/objects/imitator_game/h19/robotwin/023_tissue-box/model_3",
+        "prepared_local_path": "roboverse_data/icl/objects/imitator_game/h19/robotwin_prepared/023_tissue-box/model_3",
+        "license_status": "verified_in_pinned_source_metadata",
+        "source_files_sha256": {
+          "visual/base3.glb": "c467b09fb192667ea2d4240a19d7872e351007c95fc7d8b917348772d758eccb",
+          "collision/base3.glb": "4da5338215006b5e6dd79cc6278e47b535823814a2b4b9eedc2805f50dbbad56",
+          "model_data3.json": "aaa0ae51c2cdc8ca07ec5dd6c5671fdb18e5d26dc9691e2bad6bcbcbe8f882de"
+        },
+        "mass_kg": 0.5,
+        "inertia": "box-bound approximation; source inertia parity not verified"
+      },
+      "evaluation_status": "geometric_only_grasp_parity_unavailable",
+      "behavior_limitation": "The scene/task adapter is enabled; task success does not reproduce ManiSkill's dual-gripper is_grasping predicate."
+    }
+  },
+  "evaluation_gap": "H19 L0-L3 adapter tracks proximity and wipe-distance thresholds but does not yet reproduce ManiSkill's dual-gripper grasp predicate."
+}

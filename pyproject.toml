@@ -72,6 +72,29 @@ learn = [
     "zarr",
 ]
 sensors = ["trimesh"]
+icl = [
+    "av",
+    "diffusers",
+    "einops",
+    "h5py",
+    "pillow",
+    "pyarrow",
+    "requests",
+    "timm",
+    "torchvision",
+    "trimesh",
+    "zstandard",
+    "roboverse-metasim[mujoco]>=1.0.0b0,<1.1",
+]
+icl-geniesim = [
+    "coacd>=1.0.14,<2",
+    "fast-simplification>=0.2,<0.3",
+    "pillow",
+    "trimesh",
+    "pycollada>=0.9,<1",
+    "usd-core>=25,<27",
+    "xacro>=2.1,<3",
+]
 vla = [
     "lerobot",
     "tensorflow",

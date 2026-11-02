@@ -1,0 +1,41 @@
+{
+  "format": "roboverse.icl.benchmark_extensions.v1",
+  "extensions": [
+    {
+      "id": "g1_apple_scene_delivery_20261031_v4",
+      "robot": "agibot_g1_omnipicker",
+      "task": "pick the apple and place it on the pink plate",
+      "roboverse_task": "icl.geniesim_g1_apple_delivery",
+      "prepared_scene_path": "roboverse_data/icl/scenes/g1_apple_scene_delivery_20261031_v4_r4",
+      "source": {
+        "type": "user_supplied_archive",
+        "archive": "g1_apple_scene_delivery_20261031_v4.zip",
+        "archive_sha256": "548c5bd4760ad01ffd8f2f8c40bf32a46a4732f052610f11f4cc368ec42aadf8",
+        "license_status": "not_specified_in_bundle"
+      },
+      "simulators": ["mujoco", "genesis", "newton"],
+      "observations": ["head_rgb", "head_fisheye_left", "head_fisheye_right"],
+      "camera_projection": "OpenCV fisheye using G1 mounts and temporarily borrowed G2 optical calibration",
+      "success_condition": "apple center stays in the pink plate goal bounds for two observations",
+      "migration_status": "three_backend_scene_smoke_tested",
+      "backend_checks": {
+        "mujoco": "scene_smoke_tested",
+        "genesis": "scene_smoke_tested",
+        "newton": "scene_smoke_tested"
+      },
+      "video_validation": {
+        "status": "scene_probe_recorded",
+        "task_behavior": "not_recorded",
+        "scene_probe": "wall_removed_front_640: each backend recorded 60 frames at 30 fps for head RGB, both head fisheye views, and overview; overview is 640x640, head RGB is 640x400, and each fisheye is 640x512",
+        "report_binding": "reports include the source archive and prepared scene metadata hashes, but not the exact RoboVerse commit or dirty working-tree hash; these local smoke artifacts are not release evidence",
+        "historical_probes": "earlier 60-frame pinhole and 5-frame borrowed-G2-optics fisheye probes are superseded by wall_removed_front_640"
+      },
+      "behavioral_parity": "not_verified",
+      "limitations": [
+        "table, apple mass, plate collision and inertias include portable approximations",
+        "success checker does not verify finger contact or grasp force",
+        "robot camera calibration and joint zero/sign alignment on the physical robot remain unverified"
+      ]
+    }
+  ]
+}

@@ -42,6 +42,77 @@ def _write_xml(tmp_path: Path, name: str, body: str) -> Path:
     return p
 
 
+@pytest.mark.parametrize(("configured", "expected"), [(None, "RK4"), ("implicitfast", "implicitfast")])
+def test_integrator_override_preserves_scene_default(tmp_path, configured, expected):
+    """Only an explicit override changes the authored scene's integrator."""
+    from metasim.scenario.scenario import ScenarioCfg
+    from metasim.scenario.scene import SceneCfg
+    from metasim.scenario.simulator_params import SimParamCfg
+    from metasim.sim.mujoco import MujocoHandler
+
+    path = _write_xml(tmp_path, "integrator.xml", '<mujoco><option integrator="RK4"/><worldbody/></mujoco>')
+    scenario = ScenarioCfg(
+        scene=SceneCfg(mjcf_path=str(path)), robots=[], simulator="mujoco", num_envs=1, headless=True,
+        sim_params=SimParamCfg(mujoco_integrator=configured),
+    )
+    handler = MujocoHandler(scenario)
+    model = handler._init_mujoco()
+    assert model.option.integrator == expected
+
+
+def test_camera_near_clip_accounts_for_model_extent():
+    from types import SimpleNamespace
+
+    import mujoco
+
+    from metasim.sim.mujoco.mujoco import _include_camera_near_planes
+
+    model = mujoco.MjModel.from_xml_string('<mujoco><statistic extent="40"/></mujoco>')
+    def near(value):
+        return SimpleNamespace(name="cam", clipping_range=(value, 100.0))
+    model.vis.map.znear = 0.01
+    _include_camera_near_planes(model, [near(0.05), near(0.10)])
+    assert model.vis.map.znear * model.stat.extent == pytest.approx(0.05)
+    _include_camera_near_planes(model, [near(0.2)])
+    assert model.vis.map.znear * model.stat.extent == pytest.approx(0.05)
+    with pytest.raises(ValueError, match="clipping_range"):
+        _include_camera_near_planes(model, [near(-1)])
+
+
+@pytest.mark.parametrize("enabled", [False, True])
+def test_joint_actuator_force_limit_opt_in_at_launch(tmp_path, enabled):
+    """Launch converts robot force limits only when the scenario opts in."""
+    from metasim.scenario.robot import RobotCfg
+    from metasim.scenario.scenario import ScenarioCfg
+    from metasim.scenario.simulator_params import SimParamCfg
+    from metasim.sim.mujoco import MujocoHandler
+
+    path = _write_xml(
+        tmp_path,
+        "drive.xml",
+        '<mujoco model="drive"><worldbody><body name="root"><geom type="sphere" size=".1" mass="1"/>'
+        '<body name="arm"><joint name="j" type="hinge" actuatorfrclimited="true" '
+        'actuatorfrcrange="-2 3"/><geom type="sphere" size=".1" mass="1"/></body></body></worldbody>'
+        '<actuator><position name="j" joint="j" kp="100" kv="10" '
+        'forcelimited="true" forcerange="-5 4"/></actuator></mujoco>',
+    )
+    robot = RobotCfg(name="robot", num_joints=1, fix_base_link=True, mjcf_path=str(path), control_type={})
+    scenario = ScenarioCfg(
+        robots=[robot], simulator="mujoco", num_envs=1, headless=True, add_default_ground=False,
+        sim_params=SimParamCfg(mujoco_actuator_limits_at_joint=enabled),
+    )
+    handler = MujocoHandler(scenario)
+    try:
+        handler.launch()
+        model = handler.physics.model
+        joint = model.joint(f"{handler._mujoco_robot_names[0]}j").id
+        actuator = model.actuator(f"{handler._mujoco_robot_names[0]}j").id
+        assert bool(model.actuator_forcelimited[actuator]) is not enabled
+        assert list(model.jnt_actfrcrange[joint]) == [-2, 3]
+    finally:
+        handler.close()
+
+
 # ---------------------------------------------------------------------------
 # Fix 1: add_default_ground opt-out
 # ---------------------------------------------------------------------------
